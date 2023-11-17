@@ -1,0 +1,52 @@
+{
+  "name": "server",
+  "version": "0.0.1",
+  "description": "Awesome project developed with TypeORM.",
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/cookie-parser": "^1.4.2",
+    "@types/cors": "^2.8.6",
+    "@types/express": "^4.17.1",
+    "@types/jsonwebtoken": "^8.3.3",
+    "@types/node": "^18.17.14",
+    "nodemon": "^1.19.4",
+    "rimraf": "^5.0.5",
+    "ts-node": "10.7.0",
+    "typescript": "^4.1.0"
+  },
+  "dependencies": {
+    "apollo-server-express": "^3.12.1",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.1",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^8.1.0",
+    "express": "^4.17.1",
+    "express-jwt": "^7.7.7",
+    "express-mysql-session": "^2.1.8",
+    "express-session": "^1.17.3",
+    "graphql": "^15.8.0",
+    "graphql-middleware": "^6.1.33",
+    "graphql-scalars": "^1.22.2",
+    "graphql-shield": "^7.6.5",
+    "graphql-upload": "^16.0.2",
+    "graphql-upload-ts": "^2.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "mysql": "^2.18.1",
+    "type-graphql": "^1.1.1",
+    "typeorm": "^0.3.17"
+  },
+  "scripts": {
+    "start": "npm run build && node dist/index.js",
+    "dev": "NODE_ENV=development nodemon ./src/index.ts",
+    "build": "rimraf ./dist && tsc"
+  },
+  "exports": {
+    "./GraphQLUpload.js": "./GraphQLUpload.js",
+    "./graphqlUploadExpress.js": "./graphqlUploadExpress.js",
+    "./graphqlUploadKoa.js": "./graphqlUploadKoa.js",
+    "./package.json": "./package.json",
+    "./processRequest.js": "./processRequest.js",
+    "./Upload.js": "./Upload.js"
+  }
+}

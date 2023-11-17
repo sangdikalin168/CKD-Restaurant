@@ -1,0 +1,7 @@
+mutation UpdateCategory($categoryId: Float!, $categoryName: String!) {
+  UpdateCategory(category_id: $categoryId, category_name: $categoryName) {
+    code
+    success
+    message
+  }
+}

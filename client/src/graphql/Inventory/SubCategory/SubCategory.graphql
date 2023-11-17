@@ -1,0 +1,8 @@
+query SubCategory {
+  SubCategory {
+    subcategory_id
+    category_id
+    subcategory_name
+    category_name
+  }
+}

@@ -1,0 +1,14 @@
+query Product {
+  Product {
+    product_id
+    product_name
+    price
+    vip_price
+    category_id
+    subcategory_id
+    image_url
+    item_type
+    category_name
+    subcategory_name
+  }
+}

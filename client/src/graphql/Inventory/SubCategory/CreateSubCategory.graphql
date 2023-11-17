@@ -1,0 +1,10 @@
+mutation CreateSubCategory($categoryId: Float!, $subcategoryName: String!) {
+  CreateSubCategory(
+    category_id: $categoryId
+    subcategory_name: $subcategoryName
+  ) {
+    code
+    success
+    message
+  }
+}

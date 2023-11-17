@@ -1,0 +1,15 @@
+mutation UpdateSubCategory(
+  $subcategoryId: Float!
+  $categoryId: Float!
+  $subcategoryName: String!
+) {
+  UpdateSubCategory(
+    subcategory_id: $subcategoryId
+    category_id: $categoryId
+    subcategory_name: $subcategoryName
+  ) {
+    code
+    success
+    message
+  }
+}

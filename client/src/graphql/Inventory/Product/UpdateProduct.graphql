@@ -1,0 +1,23 @@
+mutation UpdateProduct(
+  $itemType: String!
+  $subcategoryId: Float!
+  $categoryId: Float!
+  $vipPrice: Float!
+  $price: Float!
+  $productName: String!
+  $productId: Float!
+) {
+  UpdateProduct(
+    item_type: $itemType
+    subcategory_id: $subcategoryId
+    category_id: $categoryId
+    vip_price: $vipPrice
+    price: $price
+    product_name: $productName
+    product_id: $productId
+  ) {
+    code
+    success
+    message
+  }
+}
