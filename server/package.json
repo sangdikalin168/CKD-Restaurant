@@ -38,7 +38,7 @@
   },
   "scripts": {
     "start": "npm run build && node dist/index.js",
-    "dev": "NODE_ENV=development nodemon ./src/index.ts",
+    "dev": "nodemon ./src/index.ts",
     "build": "rimraf ./dist && tsc"
   },
   "exports": {
