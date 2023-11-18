@@ -10,10 +10,10 @@ export function Sell() {
       return <Pos setShowPOS={setShowPOS} isTableMode={isTableMode} />
     }
     return (
-      <div className="grid grid-cols-3 gap-x-3 gap-y-3 sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-12 xl:gap-x-3">
+      <div className="grid grid-cols-3 gap-x-3 gap-y-3 sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-10 2xl:grid-cols-12 xl:gap-x-3">
         <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
           <button
-            className="text-4xl bg-cyan-600 text-white hover:bg-red-400"
+            className="text-3xl bg-cyan-600 text-white hover:bg-red-400"
             onClick={() => { setShowPOS(true); setIsTableMode(false) }}
           >
             ខ្ចប់
@@ -22,7 +22,7 @@ export function Sell() {
         {kajos.map((item) => (
           <div key={item.table_number} className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7 ">
             <button
-              className="text-4xl bg-green-500 hover:bg-red-400"
+              className="text-3xl bg-green-500 hover:bg-red-400"
               onClick={() => { setIsTableMode(true); setShowPOS(true); }}
             >
               {item.table_name}
@@ -34,8 +34,8 @@ export function Sell() {
   }
 
   return (
-    <div className="bg-white">
-      <div className="mx-auto px-2 py-2 sm:px-2 sm:py-4 lg:px-4">
+    <div className="">
+      <div className="mx-auto">
         <h2 className="sr-only">Products</h2>
         {
           RenderContent()

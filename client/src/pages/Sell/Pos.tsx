@@ -121,7 +121,7 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
 
     return (
         <div className="h-full">
-            <div className="rounded-md shadow-sm absolute top-3 flex gap-x-2">
+            <div className="rounded-md shadow-sm absolute top-1 flex gap-x-2">
                 <input
                     type="text"
                     className="block rounded-md border-0 py-1.5 pr-10 text-gray-900 ring-1 bor ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -140,7 +140,7 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
             </div>
             <div className="grid grid-cols-1 gap-x-4 gap-y-10 lg:grid-cols-4">
                 {/* Product grid */}
-                <div className="lg:col-span-3 bg-white rounded-md">
+                <div className="lg:col-span-3  rounded-md">
                     <div className="grid grid-cols-3 gap-x-3 gap-y-3 sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-6 xl:gap-x-6">
                         {data?.Product.map((product) => (
                             <a key={product.product_id} className="group" onClick={() => addItemToCart(product.product_id, product.product_name, product.price, product.item_type)}>
@@ -320,7 +320,7 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
                 </Transition.Root>
             </div>
 
-            <div className="hidden1">
+            <div className="hidden">
                 <Invoice
                     ref={componentRef}
                     invoice_id={1}
