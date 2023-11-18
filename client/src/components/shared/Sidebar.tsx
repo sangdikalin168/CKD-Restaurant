@@ -16,7 +16,7 @@ export default function Sidebar() {
         <div className="bg-neutral-900 w-60 p-3 flex flex-col h-screen">
             <div className="flex items-center gap-2 px-1 py-3">
                 <FcBullish fontSize={24} />
-                <span className="text-neutral-200 text-lg">OpenShop</span>
+                <span className="text-neutral-200 text-lg">មីង ហួរ</span>
             </div>
             <div className="py-8 flex flex-1 flex-col gap-0.5">
                 {DASHBOARD_SIDEBAR_LINKS.map((link) => (
