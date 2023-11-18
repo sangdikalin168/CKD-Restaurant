@@ -4,9 +4,10 @@ import { formatCurrency } from "../../utilities/formatCurrency";
 import { Dialog, Transition } from "@headlessui/react";
 import LoadingPage from "../../components/LoadingPage/LoadingPage";
 import { useCategoryQuery, useProductQuery } from "../../generated/graphql";
-import { CheckIcon, ClipboardDocumentCheckIcon, PaperAirplaneIcon, TicketIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { ClipboardDocumentCheckIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Invoice } from "../../components/ComponentToPrint/Invoice";
-import { BiCheckCircle } from "react-icons/bi";
+import { BiCheckCircle, BiEdit } from "react-icons/bi";
+import { useReactToPrint } from "react-to-print";
 
 type CartItem = {
     id: number
@@ -100,7 +101,8 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
     }
 
     const checkOut = () => {
-        //onLeavePosPage()
+        handlePrint();
+        onLeavePosPage()
         console.log(cartItems);
     }
 
@@ -113,14 +115,18 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
     const [description, setDescription] = useState("")
     const componentRef = useRef<HTMLDivElement>(null);
 
-    const [open_checkout, setOpenCheckOut] = useState(false)
     const [discount, setDiscount] = useState(0);
+    const [show_discount, setShowDiscount] = useState(false);
     const totalAmount = () => {
-        cartItems.reduce((total, cartItem) => {
+        return cartItems.reduce((total, cartItem) => {
             const item = data?.Product.find(i => i.product_id === cartItem.id)
             return total + (item?.price || 0) * cartItem.quantity
-        }, 0)
+        }, 0) - discount
     }
+
+    const handlePrint = useReactToPrint({
+        content: () => componentRef.current
+    });
 
     useEffect(() => {
         (document.getElementById("showOrHideMenuButton") as HTMLElement).classList.add("hidden");
@@ -151,7 +157,7 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
             <div className="grid grid-cols-1 gap-x-4 gap-y-10 lg:grid-cols-4">
                 {/* Product grid */}
                 <div className="lg:col-span-3  rounded-md">
-                    <div className="grid grid-cols-3 gap-x-3 gap-y-3 sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-6 xl:gap-x-6">
+                    <div className="grid grid-cols-3 gap-x-3 gap-y-3 sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-8 xl:gap-x-6">
                         {data?.Product.map((product) => (
                             <a key={product.product_id} className="group" onClick={() => addItemToCart(product.product_id, product.product_name, product.price, product.item_type)}>
                                 <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
@@ -212,10 +218,10 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
                             ))}
                         </ul>
                     </div>
-
                     <div className="">
-                        <div className="mb-2 flex justify-between">
-                            <p className="text-gray-700">Subtotal</p>
+                        <hr className="my-2" />
+                        <div className="flex justify-between">
+                            <p className="text-gray-700">សរុប</p>
                             <p className="text-gray-700">{formatCurrency(
                                 cartItems.reduce((total, cartItem) => {
                                     const item = data?.Product.find(i => i.product_id === cartItem.id)
@@ -223,46 +229,56 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
                                 }, 0)
                             )}</p>
                         </div>
-                        <hr className="my-4" />
-                        <div className="flex justify-between">
-                            <p className="text-lg font-bold">សរុប</p>
-                            <div className="">
-                                <p className="mb-1 text-lg font-bold">{formatCurrency(
-                                    cartItems.reduce((total, cartItem) => {
-                                        const item = data?.Product.find(i => i.product_id === cartItem.id)
-                                        return total + (item?.price || 0) * cartItem.quantity
-                                    }, 0)
-                                )}</p>
-                            </div>
-                        </div>
+                        <hr className="my-2" />
                         <div className="flex items-center justify-between pb-2">
                             <p className="text-lg font-bold">បញ្ចុះតម្លៃ</p>
-                            <div className="">
-                                <input
-                                    autoComplete="off"
-                                    type='number'
-                                    step="0.1"
-                                    min='0'
-                                    name="price"
-                                    onChange={(e) => setDiscount(Number(e.target.value))}
-                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                />
-                            </div>
                             <button
                                 type="button"
                                 className="font-medium text-indigo-600 hover:text-indigo-500"
+                                onClick={() => setShowDiscount(true)}
                             >
-                                <BiCheckCircle className="h-5 w-5 text-green-600" aria-hidden="true" />
+                                <BiEdit className="h-5 w-5 text-green-600" aria-hidden="true" />
                             </button>
-                            {/* <div className="">
-                                <p className="mb-1 text-lg font-bold">{formatCurrency(
-                                    cartItems.reduce((total, cartItem) => {
-                                        const item = data?.Product.find(i => i.product_id === cartItem.id)
-                                        return total + (item?.price || 0) * cartItem.quantity
-                                    }, 0)
-                                )}</p>
-                            </div> */}
+                            {
+                                show_discount ? (
+                                    <>
+                                        <div className="">
+                                            <input
+                                                value={discount}
+                                                autoComplete="off"
+                                                type='number'
+                                                step="0.1"
+                                                min='0'
+                                                name="price"
+                                                onChange={(e) => setDiscount(Number(e.target.value))}
+                                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="font-medium text-indigo-600 hover:text-indigo-500"
+                                            onClick={() => setShowDiscount(false)}
+                                        >
+                                            <BiCheckCircle className="h-5 w-5 text-green-600" aria-hidden="true" />
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="">
+                                            <p className="mb-1 text-lg font-bold">{formatCurrency(discount)}</p>
+                                        </div>
+                                    </>
+                                )
+                            }
                         </div>
+                        <hr className="my-2" />
+                        <div className="flex justify-between">
+                            <p className="text-lg font-bold">សរុបរួម</p>
+                            <div className="">
+                                <p className="mb-1 text-lg font-bold">{formatCurrency(totalAmount())}</p>
+                            </div>
+                        </div>
+                        <hr className="my-2" />
                         {
                             cartItems.length > 0 ? (
                                 <>
@@ -276,7 +292,7 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
                                             </button>
                                         ) : (
                                             <button className="flex w-full py-1.5 items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                                                onClick={() => setOpenCheckOut(true)}>
+                                                onClick={() => checkOut()}>
                                                 <ClipboardDocumentCheckIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-white" aria-hidden="true" />
                                                 គិតលុយ
                                             </button>
@@ -357,68 +373,6 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
                     </Dialog>
                 </Transition.Root>
 
-
-                {/* Add Discount And Check Out */}
-                <Transition.Root show={open_checkout} as={Fragment}>
-                    <Dialog as="div" className="relative z-10" initialFocus={cancelButtonRef} onClose={setOpenCheckOut}>
-                        <Transition.Child
-                            as={Fragment}
-                            enter="ease-out duration-300"
-                            enterFrom="opacity-0"
-                            enterTo="opacity-100"
-                            leave="ease-in duration-200"
-                            leaveFrom="opacity-100"
-                            leaveTo="opacity-0"
-                        >
-                            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-                        </Transition.Child>
-
-                        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                                <Transition.Child
-                                    as={Fragment}
-                                    enter="ease-out duration-300"
-                                    enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                                    enterTo="opacity-100 translate-y-0 sm:scale-100"
-                                    leave="ease-in duration-200"
-                                    leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-                                    leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                                >
-                                    <Dialog.Panel className="transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                                        <div className="flex justify-between items-center py-3 px-4 border-b dark:border-gray-700">
-                                            <h3 className="font-bold text-gray-800 dark:text-white">
-                                                គិតលុយ
-                                            </h3>
-                                        </div>
-
-                                        <div className="p-4 overflow-y-auto">
-                                            <label htmlFor="input-label" className="block text-sm font-medium mb-2 dark:text-white">បរិយាយ</label>
-                                            <input type="text" id="input-label" className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400" placeholder="បរិយាយ" autoFocus
-                                                onChange={(e) => setDescription(e.target.value)} />
-                                        </div>
-
-                                        <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                            <button
-                                                type="button"
-                                                className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
-                                            >
-                                                យល់ព្រម
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                                                onClick={() => setOpenCheckOut(false)}
-                                                ref={cancelButtonRef}
-                                            >
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    </Dialog.Panel>
-                                </Transition.Child>
-                            </div>
-                        </div>
-                    </Dialog>
-                </Transition.Root>
             </div>
 
             <div className="hidden">
@@ -426,8 +380,10 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
                     ref={componentRef}
                     invoice_id={1}
                     payment_date={new Date()}
-                    cashier={localStorage.getItem("display_name")}
+                    cashier={"Admin"}
                     cartItems={cartItems}
+                    discount={discount}
+                    totalAmount={totalAmount()}
                 />
             </div>
         </div>
