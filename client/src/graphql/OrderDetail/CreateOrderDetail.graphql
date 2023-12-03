@@ -1,0 +1,8 @@
+mutation CreateOrderDetail($object: [CreateDetailInput!]!) {
+  CreateOrderDetail(object: $object) {
+    code
+    success
+    message
+    order_id
+  }
+}

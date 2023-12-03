@@ -1,0 +1,7 @@
+mutation UpdateTableStatus($status: String!, $tableId: Float!) {
+  UpdateTableStatus(status: $status, table_id: $tableId) {
+    code
+    success
+    message
+  }
+}

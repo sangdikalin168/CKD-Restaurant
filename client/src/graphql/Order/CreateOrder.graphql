@@ -1,0 +1,21 @@
+mutation CreateOrder(
+  $tableId: Float!
+  $orderType: String!
+  $subTotal: Float!
+  $orderBy: Float!
+  $paymentId: Float!
+) {
+  CreateOrder(
+    table_id: $tableId
+    order_type: $orderType
+    sub_total: $subTotal
+    order_by: $orderBy
+    payment_id: $paymentId
+  ) {
+    code
+    success
+    message
+    order_id
+    queue_no
+  }
+}

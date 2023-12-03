@@ -41,9 +41,6 @@ if (!gotTheLock) {
   app.whenReady().then(createWindow)
 }
 
-// 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
-const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
-
 function createWindow() {
   win = new BrowserWindow({
     icon: path.join(process.env.PUBLIC, 'electron-vite.svg'),
@@ -72,17 +69,13 @@ function createWindow() {
     win = null
   })
 
-
   win.loadURL("http://localhost:4000")
 
 }
 
-
 app.on('window-all-closed', () => {
   app.quit()
 })
-
-
 
 // app.whenReady().then(createWindow)
 
@@ -129,7 +122,6 @@ ipcMain.handle('printComponent', (_event: any, url: any) => {
   });
   return 'shown print dialog';
 });
-
 
 //handle print
 ipcMain.handle('printComponent1', (_event: any, url: any) => {

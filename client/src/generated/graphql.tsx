@@ -22,6 +22,16 @@ export type Category = {
   category_name: Scalars['String'];
 };
 
+export type CreateDetailInput = {
+  description: Scalars['String'];
+  item_type: Scalars['String'];
+  order_id: Scalars['Float'];
+  product_id: Scalars['Float'];
+  product_name: Scalars['String'];
+  quantity: Scalars['Float'];
+  unit_price: Scalars['Float'];
+};
+
 export type GetUser = {
   __typename?: 'GetUser';
   branch: Scalars['String'];
@@ -44,12 +54,17 @@ export type LoginInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   CreateCategory: MutationResponse;
+  CreateOrder: OrderMutationResponse;
+  CreateOrderDetail: OrderDetailMutationResponse;
+  CreatePayment: PaymentMutationResponse;
   CreateProduct: ProductMutationResponse;
   CreateSubCategory: SubCategoryResponse;
   UpdateCategory: MutationResponse;
+  UpdatePayment: PaymentMutationResponse;
   UpdateProduct: ProductMutationResponse;
   UpdateProductWithImage: ProductMutationResponse;
   UpdateSubCategory: SubCategoryResponse;
+  UpdateTableStatus: PaymentMutationResponse;
   create_user: UserMutationResponse;
   login: UserMutationResponse;
   logout: UserMutationResponse;
@@ -58,6 +73,30 @@ export type Mutation = {
 
 export type MutationCreateCategoryArgs = {
   category_name: Scalars['String'];
+};
+
+
+export type MutationCreateOrderArgs = {
+  order_by: Scalars['Float'];
+  order_type: Scalars['String'];
+  payment_id: Scalars['Float'];
+  sub_total: Scalars['Float'];
+  table_id: Scalars['Float'];
+};
+
+
+export type MutationCreateOrderDetailArgs = {
+  object: Array<CreateDetailInput>;
+};
+
+
+export type MutationCreatePaymentArgs = {
+  discount: Scalars['Float'];
+  grand_total: Scalars['Float'];
+  payment_by: Scalars['Float'];
+  payment_method: Scalars['String'];
+  payment_status: Scalars['String'];
+  total_amount: Scalars['Float'];
 };
 
 
@@ -81,6 +120,17 @@ export type MutationCreateSubCategoryArgs = {
 export type MutationUpdateCategoryArgs = {
   category_id: Scalars['Float'];
   category_name: Scalars['String'];
+};
+
+
+export type MutationUpdatePaymentArgs = {
+  discount: Scalars['Float'];
+  grand_total: Scalars['Float'];
+  payment_by: Scalars['Float'];
+  payment_id: Scalars['Float'];
+  payment_method: Scalars['String'];
+  payment_status: Scalars['String'];
+  total_amount: Scalars['Float'];
 };
 
 
@@ -114,6 +164,12 @@ export type MutationUpdateSubCategoryArgs = {
 };
 
 
+export type MutationUpdateTableStatusArgs = {
+  status: Scalars['String'];
+  table_id: Scalars['Float'];
+};
+
+
 export type MutationCreate_UserArgs = {
   userInput: RegisterInput;
 };
@@ -135,17 +191,76 @@ export type MutationResponse = Response & {
   success: Scalars['Boolean'];
 };
 
+export type OrderDetailMutationResponse = {
+  __typename?: 'OrderDetailMutationResponse';
+  code: Scalars['Float'];
+  message?: Maybe<Scalars['String']>;
+  order_id?: Maybe<Scalars['Float']>;
+  success: Scalars['Boolean'];
+};
+
+export type OrderDetails = {
+  __typename?: 'OrderDetails';
+  description: Scalars['String'];
+  detail_id: Scalars['Float'];
+  order_id: Scalars['Float'];
+  product_id: Scalars['Float'];
+  product_name: Scalars['String'];
+  quantity: Scalars['Float'];
+  unit_price: Scalars['Float'];
+};
+
+export type OrderMutationResponse = {
+  __typename?: 'OrderMutationResponse';
+  code: Scalars['Float'];
+  message?: Maybe<Scalars['String']>;
+  order_id?: Maybe<Scalars['Float']>;
+  queue_no?: Maybe<Scalars['Float']>;
+  success: Scalars['Boolean'];
+};
+
+export type Orders = {
+  __typename?: 'Orders';
+  order_by: Scalars['Float'];
+  order_date: Scalars['String'];
+  order_id: Scalars['Float'];
+  payment_id: Scalars['Float'];
+  queue_no?: Maybe<Scalars['Float']>;
+  sub_total?: Maybe<Scalars['Float']>;
+  table_id?: Maybe<Scalars['Float']>;
+};
+
+export type PaymentMutationResponse = {
+  __typename?: 'PaymentMutationResponse';
+  code: Scalars['Float'];
+  message?: Maybe<Scalars['String']>;
+  payment_id?: Maybe<Scalars['Float']>;
+  success: Scalars['Boolean'];
+};
+
+export type Payments = {
+  __typename?: 'Payments';
+  discount: Scalars['Float'];
+  grand_total: Scalars['Float'];
+  payment_by: Scalars['Float'];
+  payment_date: Scalars['String'];
+  payment_id: Scalars['Float'];
+  payment_method: Scalars['String'];
+  payment_status: Scalars['String'];
+  total_amount: Scalars['Float'];
+};
+
 export type Product = {
   __typename?: 'Product';
   category_id: Scalars['Float'];
-  category_name: Scalars['String'];
+  category_name?: Maybe<Scalars['String']>;
   image_url: Scalars['String'];
   item_type: Scalars['String'];
   price: Scalars['Float'];
   product_id: Scalars['Float'];
   product_name: Scalars['String'];
   subcategory_id?: Maybe<Scalars['Float']>;
-  subcategory_name: Scalars['String'];
+  subcategory_name?: Maybe<Scalars['String']>;
   vip_price: Scalars['Float'];
 };
 
@@ -165,10 +280,25 @@ export type ProductResponse = {
 export type Query = {
   __typename?: 'Query';
   Category: Array<Category>;
+  Order: Orders;
+  Orders: Array<Orders>;
+  PaymentByTableID: Payments;
+  Payments: Array<Payments>;
   Product: Array<Product>;
   SubCategory: Array<SubCategory>;
+  Tables: Array<Tables>;
   get_user: GetUser;
   users: Array<User>;
+};
+
+
+export type QueryOrderArgs = {
+  order_id: Scalars['Float'];
+};
+
+
+export type QueryPaymentByTableIdArgs = {
+  table_id: Scalars['Float'];
 };
 
 
@@ -203,6 +333,13 @@ export type SubCategoryResponse = {
   code: Scalars['Float'];
   message: Scalars['String'];
   success: Scalars['Boolean'];
+};
+
+export type Tables = {
+  __typename?: 'Tables';
+  status: Scalars['String'];
+  table_id: Scalars['Float'];
+  table_name: Scalars['String'];
 };
 
 export type User = {
@@ -262,7 +399,7 @@ export type CreateProductMutation = { __typename?: 'Mutation', CreateProduct: { 
 export type ProductQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ProductQuery = { __typename?: 'Query', Product: Array<{ __typename?: 'Product', product_id: number, product_name: string, price: number, vip_price: number, category_id: number, subcategory_id?: number | null, image_url: string, item_type: string, category_name: string, subcategory_name: string }> };
+export type ProductQuery = { __typename?: 'Query', Product: Array<{ __typename?: 'Product', product_id: number, product_name: string, price: number, vip_price: number, category_id: number, subcategory_id?: number | null, image_url: string, item_type: string, category_name?: string | null, subcategory_name?: string | null }> };
 
 export type UpdateProductMutationVariables = Exact<{
   itemType: Scalars['String'];
@@ -319,6 +456,56 @@ export type LoginMutationVariables = Exact<{
 
 
 export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'UserMutationResponse', code: number, success: boolean, message?: string | null, accessToken?: string | null, user?: { __typename?: 'User', display_name: string, role: string, user_id: string } | null } };
+
+export type CreateOrderMutationVariables = Exact<{
+  tableId: Scalars['Float'];
+  orderType: Scalars['String'];
+  subTotal: Scalars['Float'];
+  orderBy: Scalars['Float'];
+  paymentId: Scalars['Float'];
+}>;
+
+
+export type CreateOrderMutation = { __typename?: 'Mutation', CreateOrder: { __typename?: 'OrderMutationResponse', code: number, success: boolean, message?: string | null, order_id?: number | null, queue_no?: number | null } };
+
+export type CreateOrderDetailMutationVariables = Exact<{
+  object: Array<CreateDetailInput> | CreateDetailInput;
+}>;
+
+
+export type CreateOrderDetailMutation = { __typename?: 'Mutation', CreateOrderDetail: { __typename?: 'OrderDetailMutationResponse', code: number, success: boolean, message?: string | null, order_id?: number | null } };
+
+export type CreatePaymentMutationVariables = Exact<{
+  paymentMethod: Scalars['String'];
+  paymentStatus: Scalars['String'];
+  grandTotal: Scalars['Float'];
+  discount: Scalars['Float'];
+  totalAmount: Scalars['Float'];
+  paymentBy: Scalars['Float'];
+}>;
+
+
+export type CreatePaymentMutation = { __typename?: 'Mutation', CreatePayment: { __typename?: 'PaymentMutationResponse', code: number, success: boolean, message?: string | null, payment_id?: number | null } };
+
+export type PaymentByTableIdQueryVariables = Exact<{
+  tableId: Scalars['Float'];
+}>;
+
+
+export type PaymentByTableIdQuery = { __typename?: 'Query', PaymentByTableID: { __typename?: 'Payments', payment_id: number } };
+
+export type TablesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TablesQuery = { __typename?: 'Query', Tables: Array<{ __typename?: 'Tables', table_id: number, table_name: string, status: string }> };
+
+export type UpdateTableStatusMutationVariables = Exact<{
+  status: Scalars['String'];
+  tableId: Scalars['Float'];
+}>;
+
+
+export type UpdateTableStatusMutation = { __typename?: 'Mutation', UpdateTableStatus: { __typename?: 'PaymentMutationResponse', code: number, success: boolean, message?: string | null } };
 
 
 export const CategoryDocument = gql`
@@ -774,3 +961,241 @@ export function useLoginMutation(baseOptions?: Apollo.MutationHookOptions<LoginM
 export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
 export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
 export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
+export const CreateOrderDocument = gql`
+    mutation CreateOrder($tableId: Float!, $orderType: String!, $subTotal: Float!, $orderBy: Float!, $paymentId: Float!) {
+  CreateOrder(
+    table_id: $tableId
+    order_type: $orderType
+    sub_total: $subTotal
+    order_by: $orderBy
+    payment_id: $paymentId
+  ) {
+    code
+    success
+    message
+    order_id
+    queue_no
+  }
+}
+    `;
+export type CreateOrderMutationFn = Apollo.MutationFunction<CreateOrderMutation, CreateOrderMutationVariables>;
+
+/**
+ * __useCreateOrderMutation__
+ *
+ * To run a mutation, you first call `useCreateOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createOrderMutation, { data, loading, error }] = useCreateOrderMutation({
+ *   variables: {
+ *      tableId: // value for 'tableId'
+ *      orderType: // value for 'orderType'
+ *      subTotal: // value for 'subTotal'
+ *      orderBy: // value for 'orderBy'
+ *      paymentId: // value for 'paymentId'
+ *   },
+ * });
+ */
+export function useCreateOrderMutation(baseOptions?: Apollo.MutationHookOptions<CreateOrderMutation, CreateOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateOrderMutation, CreateOrderMutationVariables>(CreateOrderDocument, options);
+      }
+export type CreateOrderMutationHookResult = ReturnType<typeof useCreateOrderMutation>;
+export type CreateOrderMutationResult = Apollo.MutationResult<CreateOrderMutation>;
+export type CreateOrderMutationOptions = Apollo.BaseMutationOptions<CreateOrderMutation, CreateOrderMutationVariables>;
+export const CreateOrderDetailDocument = gql`
+    mutation CreateOrderDetail($object: [CreateDetailInput!]!) {
+  CreateOrderDetail(object: $object) {
+    code
+    success
+    message
+    order_id
+  }
+}
+    `;
+export type CreateOrderDetailMutationFn = Apollo.MutationFunction<CreateOrderDetailMutation, CreateOrderDetailMutationVariables>;
+
+/**
+ * __useCreateOrderDetailMutation__
+ *
+ * To run a mutation, you first call `useCreateOrderDetailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateOrderDetailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createOrderDetailMutation, { data, loading, error }] = useCreateOrderDetailMutation({
+ *   variables: {
+ *      object: // value for 'object'
+ *   },
+ * });
+ */
+export function useCreateOrderDetailMutation(baseOptions?: Apollo.MutationHookOptions<CreateOrderDetailMutation, CreateOrderDetailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateOrderDetailMutation, CreateOrderDetailMutationVariables>(CreateOrderDetailDocument, options);
+      }
+export type CreateOrderDetailMutationHookResult = ReturnType<typeof useCreateOrderDetailMutation>;
+export type CreateOrderDetailMutationResult = Apollo.MutationResult<CreateOrderDetailMutation>;
+export type CreateOrderDetailMutationOptions = Apollo.BaseMutationOptions<CreateOrderDetailMutation, CreateOrderDetailMutationVariables>;
+export const CreatePaymentDocument = gql`
+    mutation CreatePayment($paymentMethod: String!, $paymentStatus: String!, $grandTotal: Float!, $discount: Float!, $totalAmount: Float!, $paymentBy: Float!) {
+  CreatePayment(
+    payment_method: $paymentMethod
+    payment_status: $paymentStatus
+    grand_total: $grandTotal
+    discount: $discount
+    total_amount: $totalAmount
+    payment_by: $paymentBy
+  ) {
+    code
+    success
+    message
+    payment_id
+  }
+}
+    `;
+export type CreatePaymentMutationFn = Apollo.MutationFunction<CreatePaymentMutation, CreatePaymentMutationVariables>;
+
+/**
+ * __useCreatePaymentMutation__
+ *
+ * To run a mutation, you first call `useCreatePaymentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePaymentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPaymentMutation, { data, loading, error }] = useCreatePaymentMutation({
+ *   variables: {
+ *      paymentMethod: // value for 'paymentMethod'
+ *      paymentStatus: // value for 'paymentStatus'
+ *      grandTotal: // value for 'grandTotal'
+ *      discount: // value for 'discount'
+ *      totalAmount: // value for 'totalAmount'
+ *      paymentBy: // value for 'paymentBy'
+ *   },
+ * });
+ */
+export function useCreatePaymentMutation(baseOptions?: Apollo.MutationHookOptions<CreatePaymentMutation, CreatePaymentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePaymentMutation, CreatePaymentMutationVariables>(CreatePaymentDocument, options);
+      }
+export type CreatePaymentMutationHookResult = ReturnType<typeof useCreatePaymentMutation>;
+export type CreatePaymentMutationResult = Apollo.MutationResult<CreatePaymentMutation>;
+export type CreatePaymentMutationOptions = Apollo.BaseMutationOptions<CreatePaymentMutation, CreatePaymentMutationVariables>;
+export const PaymentByTableIdDocument = gql`
+    query PaymentByTableID($tableId: Float!) {
+  PaymentByTableID(table_id: $tableId) {
+    payment_id
+  }
+}
+    `;
+
+/**
+ * __usePaymentByTableIdQuery__
+ *
+ * To run a query within a React component, call `usePaymentByTableIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePaymentByTableIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePaymentByTableIdQuery({
+ *   variables: {
+ *      tableId: // value for 'tableId'
+ *   },
+ * });
+ */
+export function usePaymentByTableIdQuery(baseOptions: Apollo.QueryHookOptions<PaymentByTableIdQuery, PaymentByTableIdQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PaymentByTableIdQuery, PaymentByTableIdQueryVariables>(PaymentByTableIdDocument, options);
+      }
+export function usePaymentByTableIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PaymentByTableIdQuery, PaymentByTableIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PaymentByTableIdQuery, PaymentByTableIdQueryVariables>(PaymentByTableIdDocument, options);
+        }
+export type PaymentByTableIdQueryHookResult = ReturnType<typeof usePaymentByTableIdQuery>;
+export type PaymentByTableIdLazyQueryHookResult = ReturnType<typeof usePaymentByTableIdLazyQuery>;
+export type PaymentByTableIdQueryResult = Apollo.QueryResult<PaymentByTableIdQuery, PaymentByTableIdQueryVariables>;
+export const TablesDocument = gql`
+    query Tables {
+  Tables {
+    table_id
+    table_name
+    status
+  }
+}
+    `;
+
+/**
+ * __useTablesQuery__
+ *
+ * To run a query within a React component, call `useTablesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTablesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTablesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTablesQuery(baseOptions?: Apollo.QueryHookOptions<TablesQuery, TablesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TablesQuery, TablesQueryVariables>(TablesDocument, options);
+      }
+export function useTablesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TablesQuery, TablesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TablesQuery, TablesQueryVariables>(TablesDocument, options);
+        }
+export type TablesQueryHookResult = ReturnType<typeof useTablesQuery>;
+export type TablesLazyQueryHookResult = ReturnType<typeof useTablesLazyQuery>;
+export type TablesQueryResult = Apollo.QueryResult<TablesQuery, TablesQueryVariables>;
+export const UpdateTableStatusDocument = gql`
+    mutation UpdateTableStatus($status: String!, $tableId: Float!) {
+  UpdateTableStatus(status: $status, table_id: $tableId) {
+    code
+    success
+    message
+  }
+}
+    `;
+export type UpdateTableStatusMutationFn = Apollo.MutationFunction<UpdateTableStatusMutation, UpdateTableStatusMutationVariables>;
+
+/**
+ * __useUpdateTableStatusMutation__
+ *
+ * To run a mutation, you first call `useUpdateTableStatusMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTableStatusMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTableStatusMutation, { data, loading, error }] = useUpdateTableStatusMutation({
+ *   variables: {
+ *      status: // value for 'status'
+ *      tableId: // value for 'tableId'
+ *   },
+ * });
+ */
+export function useUpdateTableStatusMutation(baseOptions?: Apollo.MutationHookOptions<UpdateTableStatusMutation, UpdateTableStatusMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateTableStatusMutation, UpdateTableStatusMutationVariables>(UpdateTableStatusDocument, options);
+      }
+export type UpdateTableStatusMutationHookResult = ReturnType<typeof useUpdateTableStatusMutation>;
+export type UpdateTableStatusMutationResult = Apollo.MutationResult<UpdateTableStatusMutation>;
+export type UpdateTableStatusMutationOptions = Apollo.BaseMutationOptions<UpdateTableStatusMutation, UpdateTableStatusMutationVariables>;

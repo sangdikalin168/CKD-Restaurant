@@ -1,0 +1,7 @@
+query Tables {
+  Tables {
+    table_id
+    table_name
+    status
+  }
+}

@@ -1,0 +1,22 @@
+mutation CreatePayment(
+  $paymentMethod: String!
+  $paymentStatus: String!
+  $grandTotal: Float!
+  $discount: Float!
+  $totalAmount: Float!
+  $paymentBy: Float!
+) {
+  CreatePayment(
+    payment_method: $paymentMethod
+    payment_status: $paymentStatus
+    grand_total: $grandTotal
+    discount: $discount
+    total_amount: $totalAmount
+    payment_by: $paymentBy
+  ) {
+    code
+    success
+    message
+    payment_id
+  }
+}

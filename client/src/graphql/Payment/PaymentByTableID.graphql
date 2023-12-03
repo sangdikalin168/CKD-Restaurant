@@ -1,0 +1,5 @@
+query PaymentByTableID($tableId: Float!) {
+  PaymentByTableID(table_id: $tableId) {
+    payment_id
+  }
+}

@@ -3,22 +3,26 @@ import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { formatCurrency } from "../../utilities/formatCurrency";
 import { Dialog, Transition } from "@headlessui/react";
 import LoadingPage from "../../components/LoadingPage/LoadingPage";
-import { useCategoryQuery, useProductQuery } from "../../generated/graphql";
+import { useCategoryQuery, useCreateOrderDetailMutation, useCreateOrderMutation, useCreatePaymentMutation, usePaymentByTableIdLazyQuery, usePaymentByTableIdQuery, useProductQuery, useUpdateTableStatusMutation } from "../../generated/graphql";
 import { ClipboardDocumentCheckIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Invoice } from "../../components/ComponentToPrint/Invoice";
 import { BiCheckCircle, BiEdit } from "react-icons/bi";
 import { useReactToPrint } from "react-to-print";
+import Notifications from "../../components/Notification";
+import { OrderInvoice } from "../../components/ComponentToPrint/OrderInvoice";
+import { KitchenInvoice } from "../../components/ComponentToPrint/KitchenInvoice";
 
 type CartItem = {
-    id: number
+    product_id: number
     quantity: number
-    name: string
-    price: number
+    product_name: string
+    unit_price: number
     description: string
     item_type: string
+    order_id: number
 }
 
-export const Pos = ({ setShowPOS, isTableMode }: any) => {
+export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: any) => {
     const [cartItems, setCartItems] = useLocalStorage<CartItem[]>(
         "shopping-cart",
         []
@@ -28,11 +32,11 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
 
     const addItemToCart = (id: number, name: string, price: number, item_type: string) => {
         setCartItems(currItems => {
-            if (cartItems.find(item => item.id == id) == null) {
-                return [...currItems, { id: id, quantity: 1, name: name, price: price, description: "", item_type: item_type }]
+            if (cartItems.find(item => item.product_id == id) == null) {
+                return [...currItems, { product_id: id, quantity: 1, product_name: name, unit_price: price, description: "", item_type: item_type, order_id: 0 }]
             } else {
                 return currItems.map(item => {
-                    if (item.id === id) {
+                    if (item.product_id === id) {
                         return { ...item, quantity: item.quantity + 1 }
                     } else {
                         return item
@@ -45,7 +49,7 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
     const increaseCartQuantity = (id: number) => {
         setCartItems(currItems => {
             return currItems.map(item => {
-                if (item.id === id) {
+                if (item.product_id === id) {
                     return { ...item, quantity: item.quantity + 1 }
                 } else {
                     return item
@@ -56,11 +60,11 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
 
     const decreaseCartQuantity = (id: number) => {
         setCartItems(currItems => {
-            if (currItems.find(item => item.id === id)?.quantity === 1) {
-                return currItems.filter(item => item.id !== id)
+            if (currItems.find(item => item.product_id === id)?.quantity === 1) {
+                return currItems.filter(item => item.product_id !== id)
             } else {
                 return currItems.map(item => {
-                    if (item.id === id) {
+                    if (item.product_id === id) {
                         return { ...item, quantity: item.quantity - 1 }
                     } else {
                         return item
@@ -72,14 +76,14 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
 
     const removeFromCart = (id: number) => {
         setCartItems(currItems => {
-            return currItems.filter(item => item.id !== id)
+            return currItems.filter(item => item.product_id !== id)
         })
     }
 
     const getItem = (id: number, description: string) => {
         setCartItems(currItems => {
             return currItems.map(item => {
-                if (item.id === id) {
+                if (item.product_id === id) {
                     return { ...item, description: description }
                 } else {
                     return item
@@ -96,14 +100,135 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
         localStorage.removeItem("shopping-cart");
     }
 
-    const saveCartToDb = () => {
-        onLeavePosPage()
+    const saveCartToDb = async () => {
+
+        if (status === "Available") {
+            //TODO: Update Table Status To Occupied
+            const result = await updateTableStatus({ variables: { tableId: table_id, status: "Occupied" } })
+
+            //TODO 1.Create Payment
+            const { data } = await createPayment({
+                variables: {
+                    paymentMethod: "Cash",
+                    paymentStatus: "Pending",
+                    grandTotal: 0,
+                    discount: 0,
+                    totalAmount: 0,
+                    paymentBy: 1,
+                }
+            })
+
+            //TODO 2.Create Order
+            if (data?.CreatePayment.success !== true) {
+                Notifications(data?.CreatePayment.message, "error");
+                return;
+            }
+
+            const order_res = await createOrder({
+                variables: {
+                    tableId: table_id,
+                    orderType: "dine_in",
+                    subTotal: subTotal(),
+                    orderBy: 1,
+                    paymentId: data?.CreatePayment.payment_id,
+                }
+            })
+
+            if (order_res.data?.CreateOrder.success !== true) {
+                Notifications(order_res.data?.CreateOrder.message, "error");
+                return;
+            }
+
+            const updatedItemsCopy = [...cartItems];
+
+            // Update order_id
+            updatedItemsCopy.forEach((item) => {
+                item.order_id = order_res.data?.CreateOrder.order_id;
+            });
+            // Set the updated items back to the state
+            setCartItems(updatedItemsCopy);
+            const orderDetail_res = await createOrderDetail({
+                variables: {
+                    object: cartItems
+                }
+            })
+
+            Notifications("Success", "success")
+            onLeavePosPage()
+        } else {
+            //TODO Get Payment ID By Table ID
+            const { data } = await getPaymentId({ variables: { tableId: table_id } });
+            alert(data?.PaymentByTableID.payment_id)
+        }
     }
 
-    const checkOut = () => {
-        handlePrint();
-        onLeavePosPage()
-        console.log(cartItems);
+    const [getPaymentId] = usePaymentByTableIdLazyQuery({ fetchPolicy: "no-cache" })
+    const [updateTableStatus] = useUpdateTableStatusMutation();
+    const [createPayment] = useCreatePaymentMutation();
+    const [createOrder] = useCreateOrderMutation();
+    const [createOrderDetail] = useCreateOrderDetailMutation();
+    const [invoice_id, setInvoiceID] = useState(0)
+    const [queue_number, setQueueNumber] = useState(0)
+    const [order_id, setOrderID] = useState(0)
+
+    //Take Away Customer
+    const checkOut = async () => {
+        //TODO 1.Create Payment
+        const { data } = await createPayment({
+            variables: {
+                paymentMethod: "Cash",
+                paymentStatus: "Paid",
+                grandTotal: totalAmount() - discount,
+                discount: discount,
+                totalAmount: totalAmount(),
+                paymentBy: 1,
+            }
+        })
+
+        //TODO 2.Create Order
+        if (data?.CreatePayment.success !== true) {
+            Notifications(data?.CreatePayment.message, "error");
+            return;
+        }
+        setInvoiceID(data.CreatePayment.payment_id)
+
+
+        const order_res = await createOrder({
+            variables: {
+                tableId: 0,
+                orderType: "take_away",
+                subTotal: subTotal(),
+                orderBy: 1,
+                paymentId: data?.CreatePayment.payment_id,
+            }
+        })
+
+        if (order_res.data?.CreateOrder.success !== true) {
+            Notifications(order_res.data?.CreateOrder.message, "error");
+            return;
+        }
+
+        setQueueNumber(order_res.data.CreateOrder.queue_no);
+        setOrderID(order_res.data.CreateOrder.order_id)
+
+        const updatedItemsCopy = [...cartItems];
+
+        // Update order_id
+        updatedItemsCopy.forEach((item) => {
+            item.order_id = order_res.data?.CreateOrder.order_id;
+        });
+        // Set the updated items back to the state
+        setCartItems(updatedItemsCopy);
+
+        const orderDetail_res = await createOrderDetail({
+            variables: {
+                object: cartItems
+            }
+        })
+
+        Notifications("Success", "success")
+        handlePrintInvoice();
+
     }
 
     const [open, setOpen] = useState(false)
@@ -114,19 +239,38 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
     const { data: category, loading: loading_category } = useCategoryQuery({ fetchPolicy: "no-cache" });
     const [description, setDescription] = useState("")
     const componentRef = useRef<HTMLDivElement>(null);
+    const invoiceRef = useRef<HTMLDivElement>(null);
 
     const [discount, setDiscount] = useState(0);
     const [show_discount, setShowDiscount] = useState(false);
+
+    const subTotal = () => {
+        return cartItems.reduce((total, cartItem) => {
+            const item = data?.Product.find(i => i.product_id === cartItem.product_id)
+            return total + (item?.price || 0) * cartItem.quantity
+        }, 0)
+    }
+
     const totalAmount = () => {
         return cartItems.reduce((total, cartItem) => {
-            const item = data?.Product.find(i => i.product_id === cartItem.id)
+            const item = data?.Product.find(i => i.product_id === cartItem.product_id)
             return total + (item?.price || 0) * cartItem.quantity
         }, 0) - discount
     }
 
     const handlePrint = useReactToPrint({
-        content: () => componentRef.current
+        content: () => componentRef.current,
+        onAfterPrint: () => {
+            onLeavePosPage();
+        }
     });
+
+    const handlePrintInvoice = useReactToPrint({
+        content: () => invoiceRef.current,
+        onAfterPrint: () => {
+            onLeavePosPage();
+        }
+    })
 
     useEffect(() => {
         (document.getElementById("showOrHideMenuButton") as HTMLElement).classList.add("hidden");
@@ -156,7 +300,7 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
             </div>
             <div className="grid grid-cols-1 gap-x-4 gap-y-10 lg:grid-cols-4">
                 {/* Product grid */}
-                <div className="lg:col-span-3  rounded-md">
+                <div className="lg:col-span-3  rounded-md bg-white p-3">
                     <div className="grid grid-cols-3 gap-x-3 gap-y-3 sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-8 xl:gap-x-6">
                         {data?.Product.map((product) => (
                             <a key={product.product_id} className="group" onClick={() => addItemToCart(product.product_id, product.product_name, product.price, product.item_type)}>
@@ -177,29 +321,29 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
                     <div className="flow-root">
                         <ul role="list" className="divide-y divide-gray-200">
                             {cartItems.map((product) => (
-                                <li key={product.id} className="flex pb-2">
+                                <li key={product.product_id} className="flex pb-2">
                                     <div className="flex flex-1 flex-col">
 
                                         <div className="flex flex-1 items-end justify-between">
-                                            <h2 className="font-bold text-gray-900">{product.name}
+                                            <h2 className="font-bold text-gray-900">{product.product_name}
                                             </h2>
-                                            <h2 className="font-bold text-gray-900">{formatCurrency(product.price)}</h2>
+                                            <h2 className="font-bold text-gray-900">{formatCurrency(product.unit_price)}</h2>
                                         </div>
 
 
                                         <div className="flex flex-1 items-end justify-between text-sm mt-1">
                                             <div className="mt-4 flex justify-between sm:space-y-6 sm:mt-0 sm:block sm:space-x-6">
                                                 <div className="mx-auto flex h-5 items-stretch text-gray-600">
-                                                    <button className="flex items-center justify-center rounded-l bg-gray-200 px-2 transition hover:bg-black hover:text-white" onClick={() => decreaseCartQuantity(product.id)}>-</button>
+                                                    <button className="flex items-center justify-center rounded-l bg-gray-200 px-2 transition hover:bg-black hover:text-white" onClick={() => decreaseCartQuantity(product.product_id)}>-</button>
                                                     <div className="flex w-full items-center justify-center bg-gray-100 px-3 text-xs uppercase transition">{product.quantity}</div>
-                                                    <button className="flex items-center justify-center rounded-r bg-gray-200 px-2 transition hover:bg-black hover:text-white" onClick={() => increaseCartQuantity(product.id)}>+</button>
+                                                    <button className="flex items-center justify-center rounded-r bg-gray-200 px-2 transition hover:bg-black hover:text-white" onClick={() => increaseCartQuantity(product.product_id)}>+</button>
                                                 </div>
                                             </div>
                                             <div className="flex">
                                                 <button
                                                     type="button"
                                                     className="font-medium text-indigo-600 hover:text-indigo-500"
-                                                    onClick={() => removeFromCart(product.id)}
+                                                    onClick={() => removeFromCart(product.product_id)}
                                                 >
                                                     <TrashIcon className="-ml-0.5 mr-1.5 h-5 w-5 text-red-600" aria-hidden="true" />
                                                 </button>
@@ -209,7 +353,7 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
                                         <button
                                             type="button"
                                             className="font-medium text-indigo-600 hover:text-red-600 hover:font-bold"
-                                            onClick={() => { setProductID(product.id); setOpen(true) }}
+                                            onClick={() => { setProductID(product.product_id); setOpen(true) }}
                                         >
                                             ផ្សេងៗ: {product.description}
                                         </button>
@@ -218,16 +362,12 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
                             ))}
                         </ul>
                     </div>
+
                     <div className="">
                         <hr className="my-2" />
                         <div className="flex justify-between">
                             <p className="text-gray-700">សរុប</p>
-                            <p className="text-gray-700">{formatCurrency(
-                                cartItems.reduce((total, cartItem) => {
-                                    const item = data?.Product.find(i => i.product_id === cartItem.id)
-                                    return total + (item?.price || 0) * cartItem.quantity
-                                }, 0)
-                            )}</p>
+                            <p className="text-gray-700">{formatCurrency(subTotal())}</p>
                         </div>
                         <hr className="my-2" />
                         <div className="flex items-center justify-between pb-2">
@@ -377,8 +517,10 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
 
             <div className="hidden">
                 <Invoice
-                    ref={componentRef}
-                    invoice_id={1}
+                    ref={invoiceRef}
+                    invoice_id={invoice_id}
+                    queue_number={queue_number}
+                    table_number={table_name}
                     payment_date={new Date()}
                     cashier={"Admin"}
                     cartItems={cartItems}
@@ -386,6 +528,31 @@ export const Pos = ({ setShowPOS, isTableMode }: any) => {
                     totalAmount={totalAmount()}
                 />
             </div>
+
+            <div className="hidden">
+                <OrderInvoice
+                    ref={componentRef}
+                    order_id={order_id}
+                    queue_number={0}
+                    table_number={table_name}
+                    payment_date={new Date()}
+                    cashier={"Admin"}
+                    cartItems={cartItems}
+                    totalAmount={totalAmount()}
+                />
+            </div>
+
+            <div className="hidden">
+                <KitchenInvoice
+                    ref={componentRef}
+                    queue_number={queue_number}
+                    table_number={table_name}
+                    payment_date={new Date()}
+                    cashier={"Admin"}
+                    cartItems={cartItems}
+                />
+            </div>
+
         </div>
     )
 }

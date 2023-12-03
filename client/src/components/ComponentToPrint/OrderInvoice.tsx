@@ -14,28 +14,23 @@ const datetime_format = (date_time: Date) => {
 };
 
 // https://reactjs.org/docs/refs-and-the-dom.html#refs-and-function-components
-export const Invoice = React.forwardRef((props, ref) => {
+export const OrderInvoice = React.forwardRef((props, ref) => {
     return (
         <div ref={ref} className="w-[400px] left-0 top-0 z-10 justify-center content-center overflow-auto border-2 border-black">
             <div className="text-center pt-3">
                 <p className="text-lg font-semibold text-black">អាហារដ្ឋាន មិង ហួរ</p>
-                <p className="text-lg font-semibold text-black">វិក័យប័ត្រ</p>
+                <p className="text-lg font-semibold text-black">Order Receipt</p>
             </div>
 
             {
-                props.queue_number > 0 ?
-                    <div className="text-2xl font-bold text-black">
-                        លេខរងចាំ: {props.queue_number}
-                    </div>
-                    :
-                    <div className="text-2xl font-bold text-black">
-                        លេខកញ្ចុះ: {props.table_number}
-                    </div>
+                <div className="text-2xl font-bold text-black">
+                    លេខកញ្ចុះ: {props.table_number}
+                </div>
             }
 
 
             <div className="text-lg font-semibold text-black">
-                វិក័យប័ត្រលេខ: <strong >{props.invoice_id}</strong>
+                Order ID: <strong >{props.order_id}</strong>
             </div>
             <div className="flex text-xs">
                 <p className="text-lg font-semibold text-black mr-4">ការបរិច្ចេទ: {datetime_format(props.payment_date)}</p>
@@ -86,24 +81,6 @@ export const Invoice = React.forwardRef((props, ref) => {
                                 return total + (item?.unit_price || 0) * cartItem.quantity
                             }, 0)
                         )}
-                    </div>
-                </div>
-                <hr className="my-2 bg-black h-[2px]" />
-            </div>
-            <div>
-                <div className="flex text-lg text-black font-semibold">
-                    <div className="flex-grow">បញ្ចុះតម្លៃ</div>
-                    <div>
-                        {formatCurrency(props.discount)}
-                    </div>
-                </div>
-                <hr className="my-2 bg-black h-[2px]" />
-            </div>
-            <div>
-                <div className="flex text-lg text-black font-semibold">
-                    <div className="flex-grow">សរុបរួម</div>
-                    <div>
-                        {formatCurrency(props.totalAmount)}
                     </div>
                 </div>
                 <hr className="my-2 bg-black h-[2px]" />
