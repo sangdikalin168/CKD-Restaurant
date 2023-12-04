@@ -1,0 +1,131 @@
+
+import React from "react";
+import { formatCurrency } from "../../utilities/formatCurrency";
+
+type ItemProps = {
+    product_name: string
+    quantity: number
+    unit_price: number
+}
+
+const datetime_format = (date_time: Date) => {
+    const date = new Date(date_time);
+    return date.toLocaleDateString("fr-CA") + " " + date.toLocaleTimeString();
+};
+
+export const PaidInvoice = React.forwardRef((props, ref) => {
+    const subTotal = () => {
+        return props.cartItems.reduce((total: number, cartItem) => {
+            const item = props.cartItems.find(
+                i => i.product_id === cartItem.product_id
+            )
+            return total + (item?.unit_price || 0) * cartItem.quantity
+        }, 0)
+    }
+
+    const totalAmount = () => {
+        return props.cartItems.reduce((total: number, cartItem) => {
+            const item = props.cartItems.find(
+                i => i.product_id === cartItem.product_id
+            )
+            return total + (item?.unit_price || 0) * cartItem.quantity
+        }, 0) - props.discount
+    }
+
+    return (
+        <div ref={ref} className="w-[400px] left-0 top-0 z-10 justify-center content-center overflow-auto border-2 border-black">
+            <div className="text-center pt-3">
+                <p className="text-lg font-semibold text-black">អាហារដ្ឋាន មិង ហួរ</p>
+                <p className="text-lg font-semibold text-black">Billing Invoice</p>
+            </div>
+
+            {
+                props.queue_number > 0 ?
+                    <div className="text-2xl font-bold text-black">
+                        លេខរងចាំ: {props.queue_number}
+                    </div>
+                    :
+                    <div className="text-2xl font-bold text-black">
+                        លេខកញ្ចុះ: {props.table_number}
+                    </div>
+            }
+
+
+            <div className="text-lg font-semibold text-black">
+                វិក័យប័ត្រលេខ: <strong >{props.invoice_id}</strong>
+            </div>
+            <div className="flex text-xs">
+                <p className="text-lg font-semibold text-black mr-4">ការបរិច្ចេទ: {datetime_format(props.payment_date)}</p>
+            </div>
+            <div className="flex text-xs">
+                <p className="text-lg font-semibold text-black" id="print_cashier">បេឡាក: {props.cashier}</p>
+            </div>
+
+            <div>
+                <table className="w-full text-lg text-black">
+                    <thead className="bg-black">
+                        <tr className="text-white">
+                            <th className="py-1 w-1/12 text-center">#</th>
+                            <th className="py-1 text-left">ទំនិញ</th>
+                            <th className="py-1 w-1/12 text-center">ចំនួន</th>
+                            <th className="py-1 w-2/12 text-right pr-1">តម្លៃ</th>
+                            <th className="py-1 w-2/12 text-right">សរុប</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            props.cartItems.map((item: ItemProps, index: number) => {
+                                return (
+                                    <tr key={index}>
+                                        <td className="text-center">{index + 1}</td>
+                                        <td className="text-left">{item.product_name}</td>
+                                        <td className="text-center">{item.quantity}</td>
+                                        <td className="text-right pr-1">{item.unit_price}៛</td>
+                                        <td className="text-right">{item.unit_price * item.quantity}៛</td>
+                                    </tr>
+                                )
+                            })
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <hr className="my-2 bg-black h-[2px]" />
+            <div>
+                <div className="flex text-lg text-black font-semibold">
+                    <div className="flex-grow">សរុបទឹកប្រាក់</div>
+                    <div>
+                        {formatCurrency(
+                            subTotal()
+                        )}
+                    </div>
+                </div>
+                <hr className="my-2 bg-black h-[2px]" />
+            </div>
+            <div>
+                <div className="flex text-lg text-black font-semibold">
+                    <div className="flex-grow">បញ្ចុះតម្លៃ</div>
+                    <div>
+                        {formatCurrency(props.discount)}
+                    </div>
+                </div>
+                <hr className="my-2 bg-black h-[2px]" />
+            </div>
+            <div>
+                <div className="flex text-lg text-black font-semibold">
+                    <div className="flex-grow">សរុបរួម</div>
+                    <div>
+                        {formatCurrency(totalAmount())}
+                    </div>
+                </div>
+                <hr className="my-2 bg-black h-[2px]" />
+            </div>
+            <div className="text-center">
+                <p className="text-lg font-semibold text-black">សូមអរគុណ!</p>
+                <p className="text-lg font-semibold text-black">012 558 789 / 070 239 789</p>
+                <p className="text-lg font-semibold text-black">អាសយដ្ឋានលេខៈ 81AE0E1 ផ្លូវ40D សង្កាត់ដង្កោ</p>
+                <p className="text-lg font-semibold text-black">ខណ្ឌដង្កោ រាជធានីភ្នំពេញ</p>
+            </div>
+        </div>
+    );
+});

@@ -1,0 +1,24 @@
+mutation UpdatePayment(
+  $paymentMethod: String!
+  $paymentStatus: String!
+  $grandTotal: Float!
+  $discount: Float!
+  $totalAmount: Float!
+  $paymentBy: Float!
+  $paymentId: Float!
+) {
+  UpdatePayment(
+    payment_method: $paymentMethod
+    payment_status: $paymentStatus
+    grand_total: $grandTotal
+    discount: $discount
+    total_amount: $totalAmount
+    payment_by: $paymentBy
+    payment_id: $paymentId
+  ) {
+    code
+    success
+    message
+    payment_id
+  }
+}

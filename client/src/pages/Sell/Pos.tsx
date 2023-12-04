@@ -158,7 +158,37 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
         } else {
             //TODO Get Payment ID By Table ID
             const { data } = await getPaymentId({ variables: { tableId: table_id } });
-            alert(data?.PaymentByTableID.payment_id)
+
+            const order_res = await createOrder({
+                variables: {
+                    tableId: table_id,
+                    orderType: "dine_in",
+                    subTotal: subTotal(),
+                    orderBy: 1,
+                    paymentId: data?.PaymentByTableID.payment_id,
+                }
+            })
+
+            if (order_res.data?.CreateOrder.success !== true) {
+                Notifications(order_res.data?.CreateOrder.message, "error");
+                return;
+            }
+            const updatedItemsCopy = [...cartItems];
+
+            // Update order_id
+            updatedItemsCopy.forEach((item) => {
+                item.order_id = order_res.data?.CreateOrder.order_id;
+            });
+            // Set the updated items back to the state
+            setCartItems(updatedItemsCopy);
+            const orderDetail_res = await createOrderDetail({
+                variables: {
+                    object: cartItems
+                }
+            })
+
+            Notifications("Success", "success")
+            onLeavePosPage()
         }
     }
 
@@ -275,6 +305,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
     useEffect(() => {
         (document.getElementById("showOrHideMenuButton") as HTMLElement).classList.add("hidden");
         (document.getElementById("sidebar") as HTMLElement).classList.add("hidden");
+        localStorage.removeItem("shopping-cart");
     }, [])
 
     if (loading) return (<LoadingPage />);

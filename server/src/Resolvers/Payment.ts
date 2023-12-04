@@ -36,6 +36,40 @@ class Tables {
     status: string;
 }
 
+@ObjectType()
+class OrderDetails168 {
+    @Field()
+    detail_id: number;
+
+    @Field()
+    order_id: number;
+
+    @Field()
+    product_id: number;
+
+    @Field()
+    product_name: string;
+
+    @Field()
+    quantity: number;
+
+    @Field()
+    unit_price: number;
+
+    @Field()
+    description: string;
+}
+
+
+@ObjectType()
+class Billing {
+    @Field()
+    payment_id: number;
+
+    @Field(type => [OrderDetails168])
+    items: OrderDetails168[];
+}
+
 @Resolver()
 export class PaymentResolver {
     @Query((_return) => [Payments])
@@ -56,6 +90,22 @@ export class PaymentResolver {
     ) {
         const res = await Payments.query(`SELECT payments.payment_id FROM payments INNER JOIN orders ON orders.payment_id = payments.payment_id WHERE payments.payment_status = "Pending" AND orders.table_id = ${table_id};`);
         return { payment_id: res[0].payment_id }
+    }
+
+    @Query((_return) => Billing)
+    async Billing(
+        @Arg("table_id") table_id: number
+    ) {
+        const res = await Payments.query(`SELECT payments.payment_id FROM payments INNER JOIN orders ON orders.payment_id = payments.payment_id WHERE payments.payment_status = "Pending" AND orders.table_id = ${table_id};`);
+        const res1 = await Payments.query(`SELECT order_id FROM orders WHERE payment_id = ${res[0].payment_id}`);
+        const res2 = await Payments.query(`SELECT * FROM order_details WHERE ${res1[0].order_id}`)
+
+        const res3 = await Payments.query(`SELECT description,orders.order_id,detail_id,product_id,product_name,SUM(quantity) as quantity,unit_price FROM order_details INNER JOIN orders ON orders.order_id = order_details.order_id INNER JOIN payments ON payments.payment_id = orders.payment_id WHERE payments.payment_id = ${res[0].payment_id} GROUP BY product_id;`)
+
+        return {
+            payment_id: res[0].payment_id,
+            items: JSON.parse(JSON.stringify(res3))
+        }
     }
 
     @Mutation((_return) => PaymentMutationResponse)
