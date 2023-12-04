@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Pos } from "./Pos";
-import { useBillingLazyQuery, usePaymentByTableIdLazyQuery, useTablesLazyQuery, useUpdatePaymentMutation, useUpdateTableStatusMutation } from "../../generated/graphql";
+import { useBillingLazyQuery, useTablesLazyQuery, useUpdatePaymentMutation, useUpdateTableStatusMutation } from "../../generated/graphql";
 import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
@@ -53,9 +53,7 @@ export function Sell() {
     handlePrintPaidInvoice();
 
     //TODO: Update Payment Status and Update Table Status
-
     await updateTable({ variables: { tableId: table_id, status: "Available" } })
-
     await updatePayment({
       variables: {
         paymentStatus: "Paid",
