@@ -2,7 +2,7 @@
 .vscode/
 node_modules/
 build/
-Images/
+Products/
 tmp/
 temp/
 dist/
