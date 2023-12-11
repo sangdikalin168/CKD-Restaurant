@@ -154,6 +154,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
             })
 
             Notifications("Success", "success")
+            handlePrintInvoice();
             onLeavePosPage()
         } else {
             //TODO Get Payment ID By Table ID
