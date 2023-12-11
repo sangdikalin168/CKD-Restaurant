@@ -67,7 +67,7 @@ export class ProductResolver {
         @Arg("picture", () => require("graphql-upload-ts").GraphQLUpload) upload: Upload
     ): Promise<ProductMutationResponse> {
         const { createReadStream } = upload;
-
+        
         const isExist = await Product.findOne({
             where: { product_name: product_name }
         });

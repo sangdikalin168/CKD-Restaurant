@@ -418,6 +418,7 @@ const ConfirmModal = (props: any) => {
       await handlePrint1(printIframe);
     },
   });
+  
   const buttonRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {

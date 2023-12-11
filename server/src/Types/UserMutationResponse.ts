@@ -1,15 +1,15 @@
 import { Field, ObjectType } from 'type-graphql'
-import { Users } from '../entity/User'
-import { IMutationResponse } from './MutationResponse'
+import { User } from '../entity/User'
+import { MutationResponse } from './MutationResponse'
 
-@ObjectType({ implements: IMutationResponse })
-export class UserMutationResponse implements IMutationResponse {
+@ObjectType({ implements: MutationResponse })
+export class UserMutationResponse implements MutationResponse {
 	code: number
 	success: boolean
 	message?: string
 
 	@Field({ nullable: true })
-	user?: Users
+	user?: User
 
 	@Field({ nullable: true })
 	accessToken?: string

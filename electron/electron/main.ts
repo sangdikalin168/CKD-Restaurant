@@ -69,7 +69,9 @@ function createWindow() {
     win = null
   })
 
-  win.loadURL("http://localhost:4000")
+  // win.loadURL("http://localhost:4000")
+
+  win.loadURL("http://localhost:5174")
 
 }
 
@@ -82,88 +84,39 @@ app.on('window-all-closed', () => {
 const printOptions = {
   silent: true,
   printBackground: true,
-  color: true,
+  color: false,
   margin: {
-    marginType: 'printableArea',
+    marginType: 0,
   },
   landscape: false,
   pagesPerSheet: 1,
-  collate: false,
+  collate: true,
   copies: 2,
   header: 'Page header',
   footer: 'Page footer',
 };
 
-const printOption2 = {
-  silent: true,
-  printBackground: true,
-  color: true,
-  margin: {
-    marginType: 'printableArea',
-  },
-  landscape: false,
-  pagesPerSheet: 1,
-  collate: false,
-  copies: 1,
-  header: 'Page header',
-  footer: 'Page footer',
-};
-
 //handle print
-ipcMain.handle('printComponent', (_event: any, url: any) => {
-  const win = new BrowserWindow({ show: false });
-  win.loadURL(url);
-  win.webContents.on('did-finish-load', () => {
-    win.webContents.print(printOptions, (success: any, failureReason: any) => {
-      console.log('Print Initiated in Main...');
-      if (!success) console.log(failureReason);
-      win.close();
-    });
-  });
-  return 'shown print dialog';
-});
+ipcMain.handle('printToElectron', (_event: any, url: any, copy: number) => {
 
-//handle print
-ipcMain.handle('printComponent1', (_event: any, url: any) => {
-  const win = new BrowserWindow({ show: false });
-  win.loadURL(url);
-
-  win.webContents.on('did-finish-load', () => {
-    win.webContents.print(printOption2, (success: any, failureReason: any) => {
-      console.log('Print Initiated in Main...');
-      if (!success) console.log(failureReason);
-      win.close();
-    });
-  });
-  return 'shown print dialog';
-});
-
-
-
-//handle preview
-ipcMain.handle('previewComponent', (_event: any, url: any) => {
-  let win = new BrowserWindow({ title: 'Preview', show: false, autoHideMenuBar: true });
-  win.loadURL(url);
-
-  win.webContents.once('did-finish-load', () => {
-    win.webContents.printToPDF(printOptions).then((data: any) => {
-      const buf = Buffer.from(data);
-      const _data = buf.toString('base64');
-      const url = 'data:application/pdf;base64,' + _data;
-      win.webContents.on('ready-to-show', () => {
-        win.show();
-        win.setTitle('Preview');
+  function print() {
+    const win = new BrowserWindow({ show: false });
+    win.loadURL(url);
+    win.webContents.on('did-finish-load', () => {
+      win.webContents.print(printOptions, (success: any, failureReason: any) => {
+        console.log('Print Initiated in Main...');
+        if (!success) console.log(failureReason);
+        win.close();
       });
+    });
+    return 'shown print dialog';
+  }
 
-      win.webContents.on('closed', () => win = null);
-      win.loadURL(url);
-    })
-      .catch((error: any) => {
-        console.log(error);
-      });
-  });
-  return 'shown preview window';
+  if(copy < 2){
+    print();
+  }else{
+    print();print();
+  }
 });
-
 
 

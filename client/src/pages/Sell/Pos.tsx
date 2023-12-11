@@ -188,6 +188,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
             })
 
             Notifications("Success", "success")
+            handlePrintInvoice();
             onLeavePosPage()
         }
     }
@@ -288,7 +289,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
         }, 0) - discount
     }
 
-    const handlePrint = useReactToPrint({
+    const handlePrintOrder = useReactToPrint({
         content: () => componentRef.current,
         onAfterPrint: () => {
             onLeavePosPage();
@@ -297,10 +298,24 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
 
     const handlePrintInvoice = useReactToPrint({
         content: () => invoiceRef.current,
-        onAfterPrint: () => {
-            onLeavePosPage();
-        }
+        print: async (printIframe: HTMLIFrameElement) => {
+            // Do whatever you want here, including asynchronous work
+            await handleSendToPrinter(printIframe);
+        },
     })
+
+    const handleSendToPrinter = async (target: HTMLIFrameElement) => {
+        return new Promise(() => {
+          console.log("forwarding print request to the main process...");
+          const data = target.contentWindow.document.documentElement.outerHTML;
+          const blob = new Blob([data], { type: "text/html; charset=utf-8" });
+          const url = URL.createObjectURL(blob);
+          window.electronAPI.printToElectron(url,2,(response: any) => {
+            console.log("Main: ", response);
+          });
+          onLeavePosPage();
+        });
+      };
 
     useEffect(() => {
         (document.getElementById("showOrHideMenuButton") as HTMLElement).classList.add("hidden");
@@ -318,7 +333,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
                     className="block rounded-md border-0 py-1.5 pr-10 text-gray-900 ring-1 bor ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     placeholder="ស្វែងរក..."
                 />
-                {
+                {/*
                     loading_category ? <div>Loading....</div> :
                         category?.Category.map((item) => {
                             return (
@@ -327,6 +342,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
                                 </button>
                             )
                         })
+                        */
                 }
             </div>
             <div className="grid grid-cols-1 gap-x-4 gap-y-10 lg:grid-cols-4">

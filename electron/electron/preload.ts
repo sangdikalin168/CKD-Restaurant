@@ -153,16 +153,8 @@ setTimeout(removeLoading, 50000)
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  printComponent1: async (url: any, callback: any) => {
-    const response = await ipcRenderer.invoke('printComponent1', url);
-    callback(response);
-  },
-  printComponent: async (url: any, callback: any) => {
-    const response = await ipcRenderer.invoke('printComponent', url);
-    callback(response);
-  },
-  previewComponent: async (url: any, callback: any) => {
-    const response = await ipcRenderer.invoke('previewComponent', url);
+  printToElectron: async (url: any,copy: number, callback: any) => {
+    const response = await ipcRenderer.invoke('printToElectron', url, copy);
     callback(response);
   },
 });

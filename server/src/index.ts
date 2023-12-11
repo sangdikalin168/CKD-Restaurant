@@ -45,10 +45,7 @@ const main = async () => {
   app.use(express.urlencoded({ extended: true }));
   app.use("/refresh_token", refreshTokenRouter);
 
-  app.use(
-    "/images/products/",
-    express.static(path.join(__dirname, "images/products"))
-  );
+  app.use("/images/products/", express.static(path.join(__dirname, "images/products")));
 
   const httpServer = createServer(app);
 
@@ -76,8 +73,8 @@ const main = async () => {
       origin: [
         "https://studio.apollographql.com",
         "http://localhost:5173",
-        "http://110.235.249.118:5173",
-        "http://110.235.249.118:4000",
+        "http://localhost:5174",
+        "http://localhost:4000",
       ],
       credentials: true,
     },
