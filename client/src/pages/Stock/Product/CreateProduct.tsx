@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Notifications from "../../../components/Notification";
 import { ArrowUpTrayIcon, UserCircleIcon } from "@heroicons/react/24/solid";
 import Compressor from 'compressorjs';
@@ -10,8 +10,8 @@ const CreateProduct = ({ setShow, refetch }: any) => {
     const { data: category, loading: category_loading } = useCategoryQuery({ fetchPolicy: "no-cache" })
     const [form_data, setFormData] = useState({
         product_name: "",
-        category_id: category?.Category[0].category_id,
-        subcategory_id: 0,
+        category_id: 1,
+        subcategory_id: 1,
         picture: null,
         item_type: "stock",
         vip_price: 0,
@@ -20,13 +20,17 @@ const CreateProduct = ({ setShow, refetch }: any) => {
 
     const handleChange = (e: any) => {
         const { name, value } = e.target;
+
         setFormData((prev) => {
             return { ...prev, [name]: value }
         })
     }
 
     const handleSubmit = async (e: any) => {
-        if (form_data.picture === null) Notifications("Input Picture", "info")
+        if (form_data.picture === null) {
+            Notifications("Input Picture", "info")
+            return
+        }
 
         e.preventDefault();
         const res = await createProduct({

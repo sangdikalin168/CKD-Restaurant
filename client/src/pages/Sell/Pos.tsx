@@ -11,6 +11,8 @@ import { useReactToPrint } from "react-to-print";
 import Notifications from "../../components/Notification";
 import { OrderInvoice } from "../../components/ComponentToPrint/OrderInvoice";
 import { KitchenInvoice } from "../../components/ComponentToPrint/KitchenInvoice";
+import addedSound from '../../assets/sounds/added_to_cart.mp3'
+import useSound from 'use-sound'
 
 type CartItem = {
     product_id: number
@@ -29,6 +31,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
     )
 
     const [product_id, setProductID] = useState(0);
+    const [cook_count, setCookCount] = useState(0);
 
     const addItemToCart = (id: number, name: string, price: number, item_type: string) => {
         setCartItems(currItems => {
@@ -203,6 +206,8 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
     const [queue_number, setQueueNumber] = useState(0)
     const [order_id, setOrderID] = useState(0)
 
+    const [playSound] = useSound(addedSound)
+
     //Take Away Customer
     const checkOut = async () => {
         //TODO 1.Create Payment
@@ -258,8 +263,20 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
             }
         })
 
+        let count = 0
+        cartItems.map((value) => {
+            if (value.item_type == "cook") {
+                count++
+                return
+            }
+        })
+
+        if (count > 0) {
+            handlePrintInvoice();
+        }
         Notifications("Success", "success")
-        handlePrintInvoice();
+        onLeavePosPage()
+
 
     }
 
@@ -275,6 +292,8 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
 
     const [discount, setDiscount] = useState(0);
     const [show_discount, setShowDiscount] = useState(false);
+    const [search, setSearch] = useState("")
+    const inputRef = useRef(null);
 
     const subTotal = () => {
         return cartItems.reduce((total, cartItem) => {
@@ -290,13 +309,6 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
         }, 0) - discount
     }
 
-    const handlePrintOrder = useReactToPrint({
-        content: () => componentRef.current,
-        onAfterPrint: () => {
-            onLeavePosPage();
-        }
-    });
-
     const handlePrintInvoice = useReactToPrint({
         content: () => invoiceRef.current,
         print: async (printIframe: HTMLIFrameElement) => {
@@ -307,16 +319,37 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
 
     const handleSendToPrinter = async (target: HTMLIFrameElement) => {
         return new Promise(() => {
-          console.log("forwarding print request to the main process...");
-          const data = target.contentWindow.document.documentElement.outerHTML;
-          const blob = new Blob([data], { type: "text/html; charset=utf-8" });
-          const url = URL.createObjectURL(blob);
-          window.electronAPI.printToElectron(url,2,(response: any) => {
-            console.log("Main: ", response);
-          });
-          onLeavePosPage();
+            console.log("forwarding print request to the main process...");
+            const data = target.contentWindow.document.documentElement.outerHTML;
+            const blob = new Blob([data], { type: "text/html; charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            window.electronAPI.printToElectron(url, 2, (response: any) => {
+                console.log("Main: ", response);
+            });
+            onLeavePosPage();
         });
-      };
+    };
+
+    const handleTrack = () => {
+        if (search.length !== 0) {
+            // Do something with value
+            const product = data?.Product.find(val => val.product_id === Number(search))
+            if (product === undefined) {
+                Notifications("មិនមានទំនិញនេះទេ", "error")
+                inputRef.current.select()
+                return
+            }
+            addItemToCart(product.product_id, product.product_name, product.price, product.item_type)
+            setSearch("")
+            playSound()
+        }
+    };
+
+    const handleKeyPress = (e: { key: string; }) => {
+        if (e.key === "Enter") {
+            handleTrack();
+        }
+    };
 
     useEffect(() => {
         (document.getElementById("showOrHideMenuButton") as HTMLElement).classList.add("hidden");
@@ -330,11 +363,17 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
         <div className="h-full">
             <div className="rounded-md shadow-sm absolute top-1 flex gap-x-2">
                 <input
-                    type="text"
                     className="block rounded-md border-0 py-1.5 pr-10 text-gray-900 ring-1 bor ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     placeholder="ស្វែងរក..."
+                    name="username"
+                    type="text"
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    onKeyPress={handleKeyPress}
+                    autoComplete="off"
+                    ref={inputRef}
                 />
-                {/*
+                {
                     loading_category ? <div>Loading....</div> :
                         category?.Category.map((item) => {
                             return (
@@ -343,7 +382,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
                                 </button>
                             )
                         })
-                        */
+
                 }
             </div>
             <div className="grid grid-cols-1 gap-x-4 gap-y-10 lg:grid-cols-4">
@@ -600,7 +639,6 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
                     cartItems={cartItems}
                 />
             </div>
-
         </div>
     )
 }

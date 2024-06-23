@@ -23,6 +23,12 @@ const Product = () => {
     const columnHelper = createColumnHelper<Product>();
     const columns = [
         columnHelper.accessor((row) => row.product_id, {
+            id: "ID",
+            cell: (info) => info.getValue(),
+            header: (info) => <span>{info.column.id}</span>,
+            footer: (info) => info.column.id,
+        }),
+        columnHelper.accessor((row) => row.product_id, {
             id: "រូបភាព",
             cell: (info) =>
                 <img className="h-12 w-12 object-cover flex-none rounded-full bg-gray-50" src={`http://localhost:4000/images/products/${info.getValue()}.jpg`} alt="" />,
