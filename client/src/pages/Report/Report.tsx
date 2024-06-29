@@ -150,8 +150,8 @@ export const Report = () => {
                       <tr key={index} className="odd:bg-white even:bg-gray-100 text-left">
                         <td className="px-2 py-2 text-left text-sm">{payment.product_name}</td>
                         <td className="px-2 py-2 text-left text-sm">{payment.qty}</td>
-                        <td className="px-2 py-2 text-left text-sm">{payment.unit_price}$</td>
-                        <td className="px-2 py-2 text-left text-sm">{payment.total}$</td>
+                        <td className="px-2 py-2 text-left text-sm">{payment.unit_price}R</td>
+                        <td className="px-2 py-2 text-left text-sm">{payment.total}R</td>
                       </tr>
                     )
                   })
@@ -159,7 +159,7 @@ export const Report = () => {
               </tbody>
               <tfoot className="bg-gray-300">
                 <tr className="text-md font-bold">
-                  <td className="px-1 py-1">សរុប $ {total} </td>
+                  <td className="px-1 py-1">សរុប R {total} </td>
                   <td className="px-1 py-1"></td>
                   <td className="px-1 py-1"></td>
                   <td className="px-1 py-1"></td>
