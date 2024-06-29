@@ -46,8 +46,30 @@ export class CreateDetailInput {
     item_type: string;
 }
 
+@ObjectType()
+class OrderDetailField {
+    @Field()
+    product_id: number;
+
+    @Field()
+    product_name: string;
+
+    @Field()
+    quantity: number;
+
+    @Field()
+    unit_price: number;
+}
+
 @Resolver()
 export class OrderDetailResolver {
+
+    @Query((_return) => [OrderDetailField])
+    async GetOrderDetails(): Promise<OrderDetailField[]> {
+        const res = await OrderDetails.query(`SELECT * FROM order_details`);
+        return JSON.parse(JSON.stringify(res));
+    }
+
 
     @Mutation((_return) => OrderDetailMutationResponse)
     async CreateOrderDetail(

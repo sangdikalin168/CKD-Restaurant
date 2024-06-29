@@ -377,8 +377,8 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
                     loading_category ? <div>Loading....</div> :
                         category?.Category.map((item) => {
                             return (
-                                <button key={item.category_id} className="py-1.5 items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                                    {item.category_name}
+                                <button key={item.category_id} className="overflow-hidden text-nowrap py-1.5 items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    {item.category_name} 
                                 </button>
                             )
                         })
