@@ -1,14 +1,7 @@
-import { createColumnHelper } from "@tanstack/react-table";
 import { useState } from "react";
 import { DateTimePicker } from "../../components/DateTimePicker";
+import { gql, useLazyQuery } from "@apollo/client";
 
-type ReportInterface = {
-  product_id: number
-  product_name: string
-  price: number
-  vip_price: number
-  category_name: string
-};
 
 export const Report = () => {
 
@@ -48,41 +41,52 @@ export const Report = () => {
     setShowDateTo(state);
   };
 
-  // const { data, loading, error, refetch } = useProductQuery({ fetchPolicy: "no-cache" });
 
-  // const columnHelper = createColumnHelper<ReportInterfaces>();
-  // const columns = [
-  //     columnHelper.accessor((row) => row.product_id, {
-  //         id: "No",
-  //         cell: (info) => info.getValue(),
-  //         header: (info) => <span>{info.column.id}</span>,
-  //         footer: (info) => info.column.id,
-  //     }),
-  //     columnHelper.accessor((row) => row.product_name, {
-  //         id: "ឈ្មោះទំនិញ",
-  //         cell: (info) => info.getValue(),
-  //         header: (info) => <span>{info.column.id}</span>,
-  //         footer: (info) => info.column.id,
-  //     }),
-  //     columnHelper.accessor((row) => row.category_name, {
-  //         id: "ចំនួន",
-  //         cell: (info) => info.getValue(),
-  //         header: (info) => <span>{info.column.id}</span>,
-  //         footer: (info) => info.column.id,
-  //     }),
-  //     columnHelper.accessor((row) => row.price, {
-  //         id: "តម្លៃ",
-  //         cell: (info) => <>{info.getValue()}៛</>,
-  //         header: (info) => <span>{info.column.id}</span>,
-  //         footer: (info) => info.column.id,
-  //     }),
-  //     columnHelper.accessor((row) => row.vip_price, {
-  //         id: "សរុប",
-  //         cell: (info) => <>{info.getValue()}៛</>,
-  //         header: (info) => <span>{info.column.id}</span>,
-  //         footer: (info) => info.column.id,
-  //     }),
-  // ];
+  const GET_ORDERDETAILS = gql`
+    query GetOrderDetails($dateTo: String!, $dateFrom: String!) {
+        GetOrderDetails(dateTo: $dateTo, dateFrom: $dateFrom) {
+    product_id
+    product_name
+    qty
+    unit_price
+    total
+  }
+}
+`;
+
+  const [GetDetails] = useLazyQuery(GET_ORDERDETAILS, { fetchPolicy: "no-cache" });
+
+  const [total, SetTotal] = useState(0);
+
+  const GetDetailMember = async () => {
+    const result = await GetDetails({
+      variables: {
+        dateFrom: selectedDateFrom,
+        dateTo: selectedDateTo,
+      },
+    });
+
+    if (!result.loading) {
+      setData(result.data.GetOrderDetails)
+
+      const sum = result.data.GetOrderDetails.reduce((acc: any, object: any) => {
+        return acc + object.total;
+      }, 0);
+
+      SetTotal(sum);
+    }
+  };
+
+  function printDiv(divId) {
+    var printContents = document.getElementById(divId).innerHTML;
+    var originalContents = document.body.innerHTML;
+
+    document.body.innerHTML = printContents;
+
+    window.print();
+
+    document.body.innerHTML = originalContents;
+  }
 
   return (
     <>
@@ -110,18 +114,26 @@ export const Report = () => {
               />
             </div>
 
-            <div>
+            <div className="space-x-2">
               <button
                 type="button"
                 className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
-              // onClick={() => CombineData(0)}
+                onClick={() => GetDetailMember()}
               >
                 Search
+              </button>
+
+              <button
+                type="button"
+                className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
+                onClick={() => printDiv('printableArea')}
+              >
+                Print
               </button>
             </div>
           </div>
 
-          <div className="p-2">
+          <div className="p-2" id="printableArea">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-300">
                 <tr>
@@ -136,9 +148,9 @@ export const Report = () => {
                   data.map((payment, index) => {
                     return (
                       <tr key={index} className="odd:bg-white even:bg-gray-100 text-left">
-                        <td className="px-2 py-2 text-left text-sm">{payment.item}</td>
+                        <td className="px-2 py-2 text-left text-sm">{payment.product_name}</td>
                         <td className="px-2 py-2 text-left text-sm">{payment.qty}</td>
-                        <td className="px-2 py-2 text-left text-sm">{payment.price}$</td>
+                        <td className="px-2 py-2 text-left text-sm">{payment.unit_price}$</td>
                         <td className="px-2 py-2 text-left text-sm">{payment.total}$</td>
                       </tr>
                     )
@@ -147,7 +159,7 @@ export const Report = () => {
               </tbody>
               <tfoot className="bg-gray-300">
                 <tr className="text-md font-bold">
-                  <td className="px-1 py-1">សរុប $ {0} </td>
+                  <td className="px-1 py-1">សរុប $ {total} </td>
                   <td className="px-1 py-1"></td>
                   <td className="px-1 py-1"></td>
                   <td className="px-1 py-1"></td>

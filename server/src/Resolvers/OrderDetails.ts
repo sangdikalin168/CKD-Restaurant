@@ -55,18 +55,27 @@ class OrderDetailField {
     product_name: string;
 
     @Field()
-    quantity: number;
+    qty: number;
 
     @Field()
     unit_price: number;
+
+    @Field()
+    total: number;
 }
 
 @Resolver()
 export class OrderDetailResolver {
 
     @Query((_return) => [OrderDetailField])
-    async GetOrderDetails(): Promise<OrderDetailField[]> {
-        const res = await OrderDetails.query(`SELECT * FROM order_details`);
+    async GetOrderDetails(
+        @Arg("dateFrom") dateFrom: string,
+        @Arg("dateTo") dateTo: string
+    ): Promise<OrderDetailField[]> {
+        const res = await OrderDetails.query(`SELECT product_id,product_name,SUM(quantity) as qty,unit_price,SUM(unit_price) as total  FROM orders
+INNER JOIN order_details ON orders.order_id = order_details.order_id
+WHERE order_date BETWEEN '${dateFrom} 00:00:00' AND '${dateTo} 23:56:39'
+GROUP BY product_id;`);
         return JSON.parse(JSON.stringify(res));
     }
 
