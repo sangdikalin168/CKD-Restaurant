@@ -15,10 +15,13 @@ import { Context } from "./Context/Context";
 import path from "path";
 const { graphqlUploadExpress } = require('graphql-upload-ts');
 
+
+
+
 const MysqlDataSource = new DataSource({
   type: "mysql",
   port: 3306,
-  host: process.env.NODE_ENV === "development" ? process.env.DEV_SERVER : process.env.PROD_SERVER,
+  host: process.env.DB_HOST,
   database: process.env.DB_NAME,
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,

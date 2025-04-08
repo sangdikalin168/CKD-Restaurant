@@ -17,11 +17,8 @@ import path from 'node:path'
 // │ │ └── preload.js
 // 
 
-process.env.DIST = path.join(__dirname, '../dist')
-process.env.PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, '../public')
 
 const gotTheLock = app.requestSingleInstanceLock();
-
 
 let win: typeof BrowserWindow | null
 
@@ -71,7 +68,7 @@ function createWindow() {
 
   // win.loadURL("http://localhost:4000")
 
-  win.loadURL("http://localhost:4000")
+  win.loadURL("http://localhost:5174")
 
 }
 
@@ -91,7 +88,7 @@ const printOptions = {
   landscape: false,
   pagesPerSheet: 1,
   collate: true,
-  copies: 1,
+  copies: 2,
   header: 'Page header',
   footer: 'Page footer',
 };

@@ -31,7 +31,6 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
     )
 
     const [product_id, setProductID] = useState(0);
-    const [cook_count, setCookCount] = useState(0);
 
     const addItemToCart = (id: number, name: string, price: number, item_type: string) => {
         setCartItems(currItems => {
@@ -99,7 +98,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
 
     const onLeavePosPage = () => {
         (document.getElementById("showOrHideMenuButton") as HTMLElement).classList.remove("hidden");
-        setShowPOS(false);
+        // setShowPOS(false);
         localStorage.removeItem("shopping-cart");
     }
 
@@ -339,7 +338,6 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
                 inputRef.current.select()
                 return
             }
-            addItemToCart(product.product_id, product.product_name, product.price, product.item_type)
             setSearch("")
             playSound()
         }
@@ -352,8 +350,9 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
     };
 
     useEffect(() => {
-        (document.getElementById("showOrHideMenuButton") as HTMLElement).classList.add("hidden");
-        (document.getElementById("sidebar") as HTMLElement).classList.add("hidden");
+        // (document.getElementById("showOrHideMenuButton") as HTMLElement).classList.add("hidden");
+        // (document.getElementById("sidebar") as HTMLElement).classList.add("hidden");
+        (document.getElementById("showOrHideMenuButton") as HTMLElement).classList.remove("hidden");
         localStorage.removeItem("shopping-cart");
     }, [])
 
@@ -361,11 +360,11 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
 
     return (
         <div className="h-full">
-            <div className="rounded-md shadow-sm absolute top-1 flex gap-x-2">
+            <div className="rounded-md shadow-sm flex gap-x-2">
                 <input
                     className="block rounded-md border-0 py-1.5 pr-10 text-gray-900 ring-1 bor ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     placeholder="ស្វែងរក..."
-                    name="username"
+                    name="search"
                     type="text"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
@@ -374,12 +373,31 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
                     ref={inputRef}
                     autoFocus
                 />
+
+                {/* Horizontal Scrollable Category List */}
+                <div className="mt-2 overflow-x-auto">
+                    <div className="flex gap-2 whitespace-nowrap">
+                        {loading_category ? (
+                            <div>Loading....</div>
+                        ) : (
+                            category?.Category.map((item) => (
+                                <button
+                                    key={item.category_id}
+                                    className="rounded-md bg-indigo-600 px-4 py-2 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                >
+                                    {item.category_name}
+                                </button>
+                            ))
+                        )}
+                    </div>
+
+                </div>
                 {/* {
                     loading_category ? <div>Loading....</div> :
                         category?.Category.map((item) => {
                             return (
                                 <button key={item.category_id} className="overflow-hidden text-nowrap py-1.5 items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                                    {item.category_name} 
+                                    {item.category_name}
                                 </button>
                             )
                         })
@@ -388,7 +406,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
             </div>
             <div className="grid grid-cols-1 gap-x-4 gap-y-10 lg:grid-cols-4">
                 {/* Product grid */}
-                <div className="lg:col-span-3  rounded-md bg-white p-3">
+                <div className="lg:col-span-3 rounded-md bg-white p-3 overflow-y-auto max-h-[calc(100vh-70px)]">
                     <div className="grid grid-cols-3 gap-x-3 gap-y-3 sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-8 xl:gap-x-6">
                         {data?.Product.map((product) => (
                             <a key={product.product_id} className="group" onClick={() => addItemToCart(product.product_id, product.product_name, product.price, product.item_type)}>
@@ -405,7 +423,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
                 </div>
 
                 {/* Cart */}
-                <div className="hidden lg:block bg-white rounded-md p-3">
+                <div className="sticky top-4 hidden lg:block bg-white rounded-md p-3">
                     <div className="flow-root">
                         <ul role="list" className="divide-y divide-gray-200">
                             {cartItems.map((product) => (
@@ -603,7 +621,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
 
             </div>
 
-            <div className="hidden1">
+            <div className="hidden">
                 <Invoice
                     ref={invoiceRef}
                     invoice_id={invoice_id}
