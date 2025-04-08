@@ -19,7 +19,7 @@ export const Invoice = React.forwardRef((props, ref) => {
         <div ref={ref} className="w-[400px] left-0 top-0 z-10 justify-center content-center overflow-auto">
             <div className="text-center pt-3">
                 <p className="text-lg font-semibold text-black">អាហារដ្ឋាន មិង ហួរ</p>
-                <p className="text-lg font-semibold text-black">វិក័យប័ត្រ</p>
+                <p className="text-lg font-semibold text-black">វិក័យប័ត្រ1</p>
             </div>
 
             {
@@ -92,18 +92,15 @@ export const Invoice = React.forwardRef((props, ref) => {
             </div>
             <div>
                 <div className="flex text-lg text-black font-semibold">
-                    <div className="flex-grow">បញ្ចុះតម្លៃ</div>
-                    <div>
-                        {formatCurrency(props.discount)}
-                    </div>
+                    <div className="flex-grow">បញ្ចុះតម្លៃ: {formatCurrency(props.discount)}</div>
                 </div>
                 <hr className="my-2 bg-black h-[2px]" />
             </div>
             <div>
                 <div className="flex text-lg text-black font-semibold">
-                    <div className="flex-grow">សរុបរួម</div>
+                    <div className="flex-grow">សរុបរួម: {formatCurrency(props.totalAmount)}</div>
                     <div>
-                        {formatCurrency(props.totalAmount)}
+                        
                     </div>
                 </div>
                 <hr className="my-2 bg-black h-[2px]" />

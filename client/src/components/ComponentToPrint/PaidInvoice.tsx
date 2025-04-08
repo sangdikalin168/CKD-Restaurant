@@ -33,7 +33,7 @@ export const PaidInvoice = React.forwardRef((props, ref) => {
     }
 
     return (
-        <div ref={ref} className="w-[400px] left-0 top-0 z-10 justify-center content-center overflow-auto border-2 border-black">
+        <div ref={ref} className="w-[360px] left-0 top-0 z-10 justify-center content-center overflow-auto border-2 border-black">
             <div className="text-center pt-3">
                 <p className="text-lg font-semibold text-black">អាហារដ្ឋាន មិង ហួរ</p>
                 <p className="text-lg font-semibold text-black">Billing Invoice</p>

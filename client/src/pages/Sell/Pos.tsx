@@ -323,7 +323,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
             const data = target.contentWindow.document.documentElement.outerHTML;
             const blob = new Blob([data], { type: "text/html; charset=utf-8" });
             const url = URL.createObjectURL(blob);
-            window.electronAPI.printToElectron(url, 2, (response: any) => {
+            window.electronAPI.printToElectron(url, 1, (response: any) => {
                 console.log("Main: ", response);
             });
             onLeavePosPage();
@@ -372,8 +372,9 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
                     onKeyPress={handleKeyPress}
                     autoComplete="off"
                     ref={inputRef}
+                    autoFocus
                 />
-                {
+                {/* {
                     loading_category ? <div>Loading....</div> :
                         category?.Category.map((item) => {
                             return (
@@ -383,7 +384,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
                             )
                         })
 
-                }
+                } */}
             </div>
             <div className="grid grid-cols-1 gap-x-4 gap-y-10 lg:grid-cols-4">
                 {/* Product grid */}
@@ -602,7 +603,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
 
             </div>
 
-            <div className="hidden">
+            <div className="hidden1">
                 <Invoice
                     ref={invoiceRef}
                     invoice_id={invoice_id}

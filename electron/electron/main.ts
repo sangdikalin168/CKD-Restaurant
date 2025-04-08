@@ -71,7 +71,7 @@ function createWindow() {
 
   // win.loadURL("http://localhost:4000")
 
-  win.loadURL("http://localhost:5174")
+  win.loadURL("http://localhost:4000")
 
 }
 
@@ -91,7 +91,7 @@ const printOptions = {
   landscape: false,
   pagesPerSheet: 1,
   collate: true,
-  copies: 2,
+  copies: 1,
   header: 'Page header',
   footer: 'Page footer',
 };
@@ -112,11 +112,7 @@ ipcMain.handle('printToElectron', (_event: any, url: any, copy: number) => {
     return 'shown print dialog';
   }
 
-  if(copy < 2){
-    print();
-  }else{
-    print();print();
-  }
+  print();
 });
 
 
