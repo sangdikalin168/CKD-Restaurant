@@ -148,12 +148,15 @@ window.onmessage = ev => {
   ev.data.payload === 'removeLoading' && removeLoading()
 }
 
+// Auto-remove loading overlay after page content loads
+setTimeout(removeLoading, 4999)
+
 setTimeout(removeLoading, 50000)
 
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  printToElectron: async (url: any,copy: number, callback: any) => {
+  printToElectron: async (url: any, copy: number, callback: any) => {
     const response = await ipcRenderer.invoke('printToElectron', url, copy);
     callback(response);
   },

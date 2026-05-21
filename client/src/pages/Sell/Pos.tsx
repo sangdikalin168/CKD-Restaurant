@@ -322,7 +322,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
             const data = target.contentWindow.document.documentElement.outerHTML;
             const blob = new Blob([data], { type: "text/html; charset=utf-8" });
             const url = URL.createObjectURL(blob);
-            window.electronAPI.printToElectron(url, 1, (response: any) => {
+            window.electronAPI.printToElectron(url, 2, (response: any) => {
                 console.log("Main: ", response);
             });
             onLeavePosPage();
@@ -375,7 +375,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
                 />
 
                 {/* Horizontal Scrollable Category List */}
-                <div className="mt-2 overflow-x-auto">
+                {/* <div className="mt-2 overflow-x-auto">
                     <div className="flex gap-2 whitespace-nowrap">
                         {loading_category ? (
                             <div>Loading....</div>
@@ -391,7 +391,7 @@ export const Pos = ({ setShowPOS, isTableMode, table_name, table_id, status }: a
                         )}
                     </div>
 
-                </div>
+                </div> */}
                 {/* {
                     loading_category ? <div>Loading....</div> :
                         category?.Category.map((item) => {

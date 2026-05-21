@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "scripts": {
     "start": "vite",
-    "build": "electron-builder"
+    "dev": "vite build && electron .",
+    "build": "vite build && electron-builder"
   },
   "dependencies": {
     "vite-tsconfig-paths": "^4.2.0"

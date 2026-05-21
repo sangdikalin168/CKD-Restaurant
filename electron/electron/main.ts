@@ -17,8 +17,11 @@ import path from 'node:path'
 // │ │ └── preload.js
 // 
 
+process.env.DIST = path.join(__dirname, '../dist')
+process.env.PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, '../public')
 
 const gotTheLock = app.requestSingleInstanceLock();
+
 
 let win: typeof BrowserWindow | null
 
@@ -72,6 +75,7 @@ function createWindow() {
 
 }
 
+
 app.on('window-all-closed', () => {
   app.quit()
 })
@@ -82,34 +86,41 @@ const printOptions = {
   silent: true,
   printBackground: true,
   color: false,
-  margin: {
-    marginType: 0,
+  margins: {
+    marginType: 'none',
   },
   landscape: false,
   pagesPerSheet: 1,
   collate: true,
-  copies: 2,
-  header: 'Page header',
-  footer: 'Page footer',
+  copies: 1,
+  header: '',
+  footer: '',
 };
 
 //handle print
-ipcMain.handle('printToElectron', (_event: any, url: any, copy: number) => {
+ipcMain.handle('printToElectron', async (_event: any, url: any, copy: number) => {
 
-  function print() {
-    const win = new BrowserWindow({ show: false });
-    win.loadURL(url);
-    win.webContents.on('did-finish-load', () => {
-      win.webContents.print(printOptions, (success: any, failureReason: any) => {
-        console.log('Print Initiated in Main...');
-        if (!success) console.log(failureReason);
-        win.close();
+  const printOnce = () => {
+    return new Promise<void>((resolve) => {
+      const printWin = new BrowserWindow({ show: false });
+      printWin.loadURL(url);
+      printWin.webContents.on('did-finish-load', () => {
+        printWin.webContents.print(printOptions, (success: any, failureReason: any) => {
+          console.log('Print Initiated in Main...');
+          if (!success) console.log(failureReason);
+          printWin.close();
+          resolve();
+        });
       });
     });
-    return 'shown print dialog';
+  };
+
+  const times = copy > 0 ? copy : 1;
+  for (let i = 0; i < times; i++) {
+    await printOnce();
   }
 
-  print();
+  return 'printed ' + times + ' time(s)';
 });
 
 

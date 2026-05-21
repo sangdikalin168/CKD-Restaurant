@@ -14,27 +14,27 @@ const datetime_format = (date_time: Date) => {
 // https://reactjs.org/docs/refs-and-the-dom.html#refs-and-function-components
 export const KitchenInvoice = React.forwardRef((props, ref) => {
     return (
-        <div ref={ref} className="w-[400px] left-0 top-0 z-10 justify-center content-center overflow-auto border-2 border-black">
+        <div ref={ref} className="w-[80mm] left-0 top-0 z-10 justify-center content-center overflow-auto border border-black p-1">
             {
                 props.queue_number > 0 ?
-                    <div className="text-2xl font-bold text-black">
+                    <div className="text-sm font-bold text-black">
                         លេខរងចាំ: {props.queue_number}
                     </div>
                     :
-                    <div className="text-2xl font-bold text-black">
+                    <div className="text-sm font-bold text-black">
                         លេខកញ្ចុះ: {props.table_number}
                     </div>
             }
             <div className="flex text-xs">
-                <p className="text-lg font-semibold text-black mr-4">ការបរិច្ចេទ: {datetime_format(props.payment_date)}</p>
+                <p className="text-xs font-semibold text-black mr-2">ការបរិច្ចេទ: {datetime_format(props.payment_date)}</p>
             </div>
             <div>
-                <table className="w-full text-lg font-semibold text-black">
+                <table className="w-full text-xs font-semibold text-black">
                     <thead className="bg-black">
                         <tr className="text-white">
-                            <th className="py-1 w-1/12 text-center">#</th>
-                            <th className="py-1 text-left">ទំនិញ</th>
-                            <th className="py-1 w-1/12 text-center">ចំនួន</th>
+                            <th className="py-0.5 w-1/12 text-center">#</th>
+                            <th className="py-0.5 text-left">ទំនិញ</th>
+                            <th className="py-0.5 w-1/12 text-center">ចំនួន</th>
                         </tr>
                     </thead>
                     <tbody>
